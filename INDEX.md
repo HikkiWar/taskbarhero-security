@@ -288,6 +288,18 @@ value = ((ciphertext - key) ^ key)
 
 ---
 
+## ☕ Support
+
+If this research was useful to you, consider leaving a tip:
+
+| Network | Address |
+|---------|---------|
+| **TRON (TRX)** | `TRgsfN7NUQ2BGadQkWnUx4SArTtjBvjbry` |
+| **Ethereum / BSC** | `0x1bf94308b1f418cebc5e37a564961c9aa02c2aee` |
+| **Solana (SOL)** | `DDZNDWD1uYrLGXBQBubHR8c4gHChNtR9QEzL8yP3Dp1N` |
+
+---
+
 **Версия плана:** 1.0  
 **Последнее обновление:** 2026-08-10  
 **Статус:** Готово к исполнению ✅
