@@ -22,6 +22,9 @@ test_drop_probability.py  ← F-12: Таблица весов дропа (MEDIUM
 test_cube_synthesis.py    ← F-10: Отрицательная цена синтеза (HIGH, 2-3ч)
 test_rare_boxes.py        ← F-11: Подмена типа сундука (HIGH, 2-3ч)
 test_network_hijacking.py ← F-09: Переш cifровка сейва (CRITICAL, 3-4ч)
+
+test_rune_balance.py      ← F-01: Отрицательный баланс рун ✅ ПОДТВЕРЖДЕНО (HIGH)
+test_stat_modification.py ← F-02/F-04: Смена статов персонажа ✅ ПОДТВЕРЖДЕНО (HIGH)
 ```
 
 ### 📋 ДОКУМЕНТАЦИЯ
@@ -68,6 +71,8 @@ test-results/
 
 | F# | Название | Severity | Статус | Скрипт | Время |
 |----|----------|----------|--------|--------|-------|
+| F-01 | Negative Rune Balance | **HIGH** | ✅ ПОДТВЕРЖДЕНО | test_rune_balance.py | — |
+| F-02/04 | Stat Modification | **HIGH** | ✅ ПОДТВЕРЖДЕНО | test_stat_modification.py | — |
 | F-12 | Drop Probability | MEDIUM | ✗ НЕ проверено | test_drop_probability.py | 1-2ч |
 | F-10 | Cube Synthesis | HIGH | ✗ НЕ проверено | test_cube_synthesis.py | 2-3ч |
 | F-11 | Rare Box Rolls | HIGH | ⚠️ ЧАСТИЧ | test_rare_boxes.py | 2-3ч |
@@ -84,7 +89,31 @@ python RUN_TESTS.py
 # Выбрать [0] Меню
 ```
 
-### Шаг 2: F-12 Drop Probability (1-2ч)
+### Шаг 2: F-01 Negative Rune Balance ✅ CONFIRMED
+```bash
+python test_rune_balance.py
+```
+- Открыть Cheat Engine
+- Сканировать int32 = известный RuneKey (напр. 110011)
+- Подтвердить структуру: соседние значения = Level, currencyKey, cost
+- Инвертировать cost (int32): положительное → отрицательное
+- Запустить скрипт, ввести адрес начала таблицы рун
+- Улучшить руну → золото должно ВЫРАСТИ на |cost|
+- Дождаться автосейва (3 мин), перезапустить игру
+- Результат: ✅ ПОДТВЕРЖДЕНО (золото сохраняется)
+
+### Шаг 3: F-02/F-04 Stat Modification ✅ CONFIRMED
+```bash
+python test_stat_modification.py
+```
+- Режим 1 (F-02): найти attributeSaveDatas, записать уровень атрибута
+  - attr 101002 (HP): 8 → 58 — сохраняется после рестарта
+  - attr 101003 (закрытый): 0 → 1 — открывается
+- Режим 3 (F-04): записать множитель опыта (float, +0x2A0 от МАКС. HP)
+  - Убить мобов → XP × множитель начислит сама игра → сохранится
+- Результат: ✅ ПОДТВЕРЖДЕНО (F-02 постоянно, F-04 XP постоянен)
+
+### Шаг 5: F-12 Drop Probability (1-2ч)
 ```bash
 python RUN_TESTS.py  →  [0]  →  [1]
 ```
@@ -96,7 +125,7 @@ python RUN_TESTS.py  →  [0]  →  [1]
 - Открыть 10-20 сундуков в игре
 - Результат: ✅ УЯЗВИМО или ❌ ЗАЩИТА
 
-### Шаг 3: F-10 Cube Synthesis (2-3ч)
+### Шаг 6: F-10 Cube Synthesis (2-3ч)
 ```bash
 python RUN_TESTS.py  →  [0]  →  [2]
 ```
@@ -109,7 +138,7 @@ python RUN_TESTS.py  →  [0]  →  [2]
 - Дождаться автосейва
 - Результат: ✅ УЯЗВИМО или ❌ ЗАЩИТА
 
-### Шаг 4: F-11 Rare Box Rolls (2-3ч)
+### Шаг 7: F-11 Rare Box Rolls (2-3ч)
 ```bash
 python RUN_TESTS.py  →  [0]  →  [3]
 ```
@@ -122,7 +151,7 @@ python RUN_TESTS.py  →  [0]  →  [3]
 - Проверить награду
 - Результат: ✅ УЯЗВИМО или ❌ ЗАЩИТА
 
-### Шаг 5: F-09 Network Hijacking (3-4ч) ⚠️ КРИТИЧНО
+### Шаг 8: F-09 Network Hijacking (3-4ч) ⚠️ КРИТИЧНО
 ```bash
 python RUN_TESTS.py  →  [0]  →  [4]
 ```

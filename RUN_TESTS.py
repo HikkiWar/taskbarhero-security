@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 TaskBarHero Security Testing — Master Test Runner
-Запускает все 4 непроверённых вектора атак по приоритету
+Непроверённые векторы (F-09...F-12) + подтверждённые эксплойты (F-01, F-02/04)
 """
 
 import os
@@ -40,15 +40,31 @@ TESTS = [
         'file': 'test_network_hijacking.py',
         'severity': 'CRITICAL',
         'time': '3-4ч',
-        'description': 'Подмена переш cifрованного сейва (F-06 пароль известен)'
-    }
+        'description': 'Подмена перешифрованного сейва (F-06 пароль известен)'
+    },
+    {
+        'num': 5,
+        'name': 'Rune Balance [CONFIRMED]',
+        'file': 'test_rune_balance.py',
+        'severity': 'HIGH',
+        'time': 'demo',
+        'description': 'F-01: Отрицательная цена руны → прирост золота (ПОДТВЕРЖДЕНО)'
+    },
+    {
+        'num': 6,
+        'name': 'Stat Modification [CONFIRMED]',
+        'file': 'test_stat_modification.py',
+        'severity': 'HIGH',
+        'time': 'demo',
+        'description': 'F-02/F-04: Запись характеристик / боевых статов (ПОДТВЕРЖДЕНО)'
+    },
 ]
 
 def print_header():
     print()
     print("=" * 80)
     print(" " * 15 + "TaskBarHero — SECURITY TESTING SUITE")
-    print(" " * 20 + "Непроверённые векторы атак (F-09...F-12)")
+    print(" " * 15 + "Непроверённые (F-09...F-12) + подтверждённые (F-01, F-02/04)")
     print("=" * 80)
     print()
 
@@ -105,7 +121,7 @@ def print_summary():
     print("  • TEST_PROTOCOL_UNCHECKED.md  — Полный протокол")
     print("  • QUICK_SUMMARY.txt           — Краткая сводка")
     print()
-    print("Результаты заносить в FINDINGS.md как F-09, F-10, F-11, F-12")
+    print("Результаты заносить в FINDINGS.md (F-09...F-12 — новые, F-01/F-02/F-04 — подтверждены)")
     print()
 
 def main():
@@ -131,12 +147,12 @@ def main():
         while True:
             print_test_menu()
 
-            user_choice = input("Выберите тест (1-4, 0=назад): ").strip()
+            user_choice = input("Выберите тест (1-6, 0=назад): ").strip()
 
             if user_choice == '0':
                 continue
 
-            if user_choice.isdigit() and 1 <= int(user_choice) <= 4:
+            if user_choice.isdigit() and 1 <= int(user_choice) <= 6:
                 test_num = int(user_choice) - 1
                 test = TESTS[test_num]
 
