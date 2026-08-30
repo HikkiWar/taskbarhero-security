@@ -1,0 +1,26 @@
+# Auth tokens - NEVER commit
+token.txt
+
+# Private keys - NEVER commit
+*.pem
+
+# Large tool installations (not part of research)
+ghidra_12.1.2_PUBLIC/
+x64dbg/
+
+# Claude Code settings
+.claude/
+
+# Archives
+*.zip
+
+# Compiled objects, logs, cache (build artifacts / muse)
+*.obj
+*.log
+*.log.*
+__pycache__/
+*.pyc
+*.pyc.*
+
+# Explicit large files
+es3hook/equip_hook4.log

@@ -1,0 +1,207 @@
+{
+ "sha256": "2a13147ee5a0fbe7c453b812dc1450b08a2187ab960e0d31fe7faddad40121ff",
+ "size": 107678720,
+ "dump_base": "0x7ffb38a60000",
+ "chain": [
+  {
+   "order": 1,
+   "name": "TaskbarHero.UI.ExtraStatDetail::lpv(p=1)",
+   "offset": "0xA1E1A0"
+  },
+  {
+   "order": 2,
+   "name": "TaskbarHero.Data.StatModInfoData::mlx(p=0)",
+   "offset": "0xA9F3C0"
+  },
+  {
+   "order": 3,
+   "name": "TaskbarHero.UI.InventorySlot::hre(p=0)",
+   "offset": "0xA0F040"
+  },
+  {
+   "order": 4,
+   "name": "TaskbarHero.DragData::.ctor(p=3)",
+   "offset": "0x846E00"
+  },
+  {
+   "order": 5,
+   "name": "TaskbarHero.DragData::hpu(p=2)",
+   "offset": "0x846ED0"
+  },
+  {
+   "order": 6,
+   "name": "TaskbarHero.SlotInteractionManager::icd(p=1)",
+   "offset": "0x878680"
+  },
+  {
+   "order": 7,
+   "name": "TaskbarHero.UI.GearSlot::hrf(p=0)",
+   "offset": "0xA0A980"
+  },
+  {
+   "order": 8,
+   "name": "TaskbarHero.ValidationResult::hzy(p=0)",
+   "offset": "0x882890"
+  },
+  {
+   "order": 9,
+   "name": "TaskbarHero.UI_Hero::hmp(p=0)",
+   "offset": "0x85A290"
+  },
+  {
+   "order": 10,
+   "name": "TaskbarHero.UI.GearSlot::lii(p=1)",
+   "offset": "0xA0AC70"
+  },
+  {
+   "order": 11,
+   "name": "TaskbarHero.UI.GearSlot::lil(p=1)",
+   "offset": "0xA0B380"
+  },
+  {
+   "order": 12,
+   "name": "TaskbarHero.UI.GearSlot::lin(p=0)",
+   "offset": "0xA0B640"
+  },
+  {
+   "order": 13,
+   "name": "TaskbarHero.UI_Hero::hng(p=1)",
+   "offset": "0x85C4C0"
+  },
+  {
+   "order": 14,
+   "name": "TaskbarHero.MoveResult::iaa(p=1)",
+   "offset": "0x875AF0"
+  },
+  {
+   "order": 15,
+   "name": "TaskbarHero.UI.GearSlot::lit(p=0)",
+   "offset": "0xA0BAD0"
+  },
+  {
+   "order": 16,
+   "name": "TaskbarHero.StageManager::ihp(p=2)",
+   "offset": "0x880A80"
+  },
+  {
+   "order": 17,
+   "name": "TaskbarHero.StageManager::ihm(p=1)",
+   "offset": "0x880740"
+  },
+  {
+   "order": 18,
+   "name": "TaskbarHero.Log.GetBoxLog::.ctor(p=2)",
+   "offset": "0x9B5F30"
+  },
+  {
+   "order": 19,
+   "name": "TaskbarHero.Log.GetBoxLog::khx(p=0)",
+   "offset": "0x9B6080"
+  },
+  {
+   "order": 20,
+   "name": "TaskbarHero.Data.LogColorSettings::mmw(p=1)",
+   "offset": "0xAE03B0"
+  },
+  {
+   "order": 21,
+   "name": "TaskbarHero.StageManager::ifk(p=6)",
+   "offset": "0x87AA60"
+  },
+  {
+   "order": 22,
+   "name": "TaskbarHero.StageManager::iga(p=0)",
+   "offset": "0x87C250"
+  },
+  {
+   "order": 23,
+   "name": "TaskbarHero.StageManager::igb(p=0)",
+   "offset": "0x87C2C0"
+  },
+  {
+   "order": 24,
+   "name": "TaskbarHero.Unit::guz(p=0)",
+   "offset": "0xBF7E10"
+  },
+  {
+   "order": 25,
+   "name": "TaskbarHero.WindowManager::hir(p=0)",
+   "offset": "0xC21A90"
+  },
+  {
+   "order": 26,
+   "name": "TaskbarHero.WindowManager::hjl(p=1)",
+   "offset": "0xC22ED0"
+  },
+  {
+   "order": 27,
+   "name": "TaskbarHero.WindowManager::hjm(p=1)",
+   "offset": "0xC22F10"
+  },
+  {
+   "order": 28,
+   "name": "TaskbarHero.WindowManager::hiu(p=2)",
+   "offset": "0xC21C10"
+  },
+  {
+   "order": 29,
+   "name": "TaskbarHero.WindowManager::hif(p=1)",
+   "offset": "0xC20A50"
+  },
+  {
+   "order": 30,
+   "name": "TaskbarHero.ToastManager::kfa(p=0)",
+   "offset": "0x9C4090"
+  },
+  {
+   "order": 31,
+   "name": "TaskbarHero.ToastMessage::hsd(p=1)",
+   "offset": "0x8552E0"
+  },
+  {
+   "order": 32,
+   "name": "TaskbarHero.UI.LogTopBottomChanger::mbf(p=0)",
+   "offset": "0xA56C80"
+  },
+  {
+   "order": 33,
+   "name": "TaskbarHero.UI.LogTopBottomChanger::mbg(p=1)",
+   "offset": "0xA56D00"
+  },
+  {
+   "order": 34,
+   "name": "TaskbarHero.UI.UI_Log::lsy(p=1)",
+   "offset": "0xA3B0D0"
+  },
+  {
+   "order": 35,
+   "name": "TaskbarHero.UI.UI_Log::lsz(p=1)",
+   "offset": "0xA3B110"
+  },
+  {
+   "order": 36,
+   "name": "TaskbarHero.WindowManager::his(p=0)",
+   "offset": "0xC21AB0"
+  },
+  {
+   "order": 37,
+   "name": "TaskbarHero.WindowManager::hjo(p=1)",
+   "offset": "0xC23770"
+  },
+  {
+   "order": 38,
+   "name": "TaskbarHero.WindowManager::hix(p=2)",
+   "offset": "0xC223A0"
+  },
+  {
+   "order": 39,
+   "name": "TaskbarHero.WindowManager::hiq(p=0)",
+   "offset": "0xC21990"
+  },
+  {
+   "order": 40,
+   "name": "TaskbarHero.WindowManager::hip(p=0)",
+   "offset": "0xC21830"
+  }
+ ]
+}

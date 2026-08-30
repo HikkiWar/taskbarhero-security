@@ -1,0 +1,2 @@
+es3hook_v2.cpp
+LINK : fatal error LNK1104: не удается открыть файл "es3hook_v2.dll"

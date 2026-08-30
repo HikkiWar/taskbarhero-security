@@ -1,0 +1,124 @@
+=== статические поля классов игры ===
+
+--- TaskbarHero.Monster ---
+    bcyh                                 = 0x23DB0ED3000   UnityEngine.WaitForSeconds
+
+--- TaskbarHero.StageBoxRequestAbuseGuard ---
+    bdfc                                 = 0x23F5F911230   System.String
+
+--- TaskbarHero.WindowManager ---
+    bdfu                                 = 0x23FBD9C2A40   System.String
+    bdfv                                 = 0x23FBD9C2A00   System.String
+    bdfw                                 = 0x23FBDDA72D0   System.String
+    bdfx                                 = 0x23FBDDA7280   System.String
+    bdfy                                 = 0x23FBD9C29C0   System.String
+    bdfz                                 = 0x23FBDDA7230   System.String
+
+--- TaskbarHero.UI_Setting ---
+    bdje                                 = 0x23FAC1F6F00   System.String[]
+    bdjf                                 = 0x23FB2F576C0   TaskbarHero.EWindowLayoutPreset[]
+
+--- TaskbarHero.EStashItemTypeFilter ---
+    ALL                                  = 0xFFFFFFFF   TaskbarHero.EStashItemTypeFilter
+    START                                = 0xFFFFFFFF   TaskbarHero.EStashItemTypeFilter
+
+--- TaskbarHero.EStashGradeTypeFilter ---
+    ALL                                  = 0xFFFFFFFF   TaskbarHero.EStashGradeTypeFilter
+    START                                = 0xFFFFFFFF   TaskbarHero.EStashGradeTypeFilter
+
+--- TaskbarHero.TBHSavedLanguageSelector ---
+    PREF_KEY_LANGUAGE_INDEX              = 0x23FBD9C2980   System.String
+
+--- TaskbarHero.RESULTGRADETYPE ---
+    Lower2Grade                          = 0xFFFFFFFE   TaskbarHero.RESULTGRADETYPE
+    Lower1Grade                          = 0xFFFFFFFF   TaskbarHero.RESULTGRADETYPE
+
+--- TaskbarHero.Pet.Pet ---
+    bfnf                                 = 0x51CFE0E3   System.Int32
+    bfng                                 = 0xE2FC0703   System.Int32
+    bfnh                                 = 0x49AF2742   System.Int32
+
+--- TaskbarHero.Log.ELogFilter ---
+    All                                  = 0xFFFFFFFF   TaskbarHero.Log.ELogFilter
+
+--- TaskbarHero.Effect.EffectController ---
+    bfse                                 = 0x23FB639CB40   UnityEngine.MaterialPropertyBlock
+
+--- TaskbarHero.Manager.LocalInventoryManager ---
+    bfwh                                 = 0x23FB679E100   TaskbarHero.Manager.LocalInventoryManager
+
+--- TaskbarHero.Option.StartOption ---
+    bfyb                                 = 0x23FBCF5DD80   System.String
+
+--- TaskbarHero.UI.CubeSlotSettingType ---
+    AllBackGroundOff                     = 0xFFFFFFFF   TaskbarHero.UI.CubeSlotSettingType
+    DefaultItemSlotBackGround            = 0xFFFFFFFE   TaskbarHero.UI.CubeSlotSettingType
+
+--- TaskbarHero.UI.FullIllustrationPanel ---
+    bgaa                                 = 0x5470607C   System.Int32
+    bgab                                 = 0x5636DE25   System.Int32
+    bgac                                 = 0x57F4B412   System.Int32
+    bgad                                 = 0x52BBA297   System.Int32
+    bgae                                 = 0x5379C8A0   System.Int32
+    bgaf                                 = 0x513F76F9   System.Int32
+    bgag                                 = 0xCEE7D1F2   System.Int32
+
+--- TaskbarHero.UI.HeroPortrait ---
+    bgaj                                 = 0xCEE7D1F2   System.Int32
+
+--- TaskbarHero.UI.DownloadContentSlotBase ---
+    bgbs                                 = 0x23FBD9C2900   System.String
+    bgbt                                 = 0x23F5F9111C0   System.String
+
+--- TaskbarHero.UI.TradingStashSlot ---
+    bgdh                                 = 0x23FBD9C28C0   System.String
+    bgdi                                 = 0x23FBDDA71E0   System.String
+    bgdj                                 = 0x23FBD9C2880   System.String
+
+--- TaskbarHero.UI.StashTabButton ---
+    bgfb                                 = 0x23FBDDA7190   System.String
+
+--- TaskbarHero.UI.ExtraStatDetail ---
+    bgfv                                 = 0x3ED2D2D33ED2D2D3   UnityEngine.Color
+    bgfw                                 = 0x3F0888893F088889   UnityEngine.Color
+
+--- TaskbarHero.UI.NoticeBackendReward ---
+    bgge                                 = 0x42700000   System.Single
+
+--- TaskbarHero.UI.UI_Portal ---
+    bgis                                 = 0x3F2B851F   System.Single
+    bgit                                 = 0x3F428F5C   System.Single
+    bgiu                                 = 0x23FBDDA7140   System.String
+
+--- TaskbarHero.UI.UI_Status ---
+    bgjh                                 = 0x3F8000003F800000   UnityEngine.Color
+    bgji                                 = 0x3F800000   UnityEngine.Color
+
+--- TaskbarHero.UI.UI_TradingStash ---
+    bgjn                                 = 0x23FBC913D10   System.String
+    bgjq                                 = 0x4F9E603D   System.Int32
+    bgjr                                 = 0x15C05437   System.Int32
+    bgjs                                 = 0x7AB5A52F   System.Int32
+
+--- TaskbarHero.Data.ScriptableObjectDataContainer ---
+    Instance                             = 0x23F7FA76D00   TaskbarHero.Data.ScriptableObjectDataContainer
+
+--- TaskbarHero.Data.EGearUniqueMod ---
+    SorcererLightningShock               = 0xF4249   TaskbarHero.Data.EGearUniqueMod
+    SlayerLowHpAttackSpeed               = 0xF4248   TaskbarHero.Data.EGearUniqueMod
+    WhirlwindFireIgnite                  = 0xF424A   TaskbarHero.Data.EGearUniqueMod
+    SkillProjectileCountUp               = 0xF424B   TaskbarHero.Data.EGearUniqueMod
+    SkillMultiStrikeCountUp              = 0xF424C   TaskbarHero.Data.EGearUniqueMod
+    SkillElementChange                   = 0xF424D   TaskbarHero.Data.EGearUniqueMod
+    SkillBaseAttackCountReduce           = 0xF424E   TaskbarHero.Data.EGearUniqueMod
+    SkillCooldownReduce                  = 0xF424F   TaskbarHero.Data.EGearUniqueMod
+    WaveMoveSlowestPartyExcludeSelf      = 0xF4241   TaskbarHero.Data.EGearUniqueMod
+    WaveMoveFastestPartyMember           = 0xF4242   TaskbarHero.Data.EGearUniqueMod
+
+--- TaskbarHero.Combat.KnightDashAtk ---
+    bgwc                                 = 0x3DCCCCCD   System.Single
+
+--- TaskbarHero.Combat.ActiveSkill ---
+    bheo                                 = 0x23FBC1E3F00   System.Collections.Generic.List<System.Int32>
+
+=== ненулевых статических ссылок: 65 ===

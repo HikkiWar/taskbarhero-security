@@ -1,0 +1,4 @@
+es3hook_v2.cpp
+es3hook_v2.cpp(171): error C2065: p_domain_get_assemblies: необъявленный идентификатор
+es3hook_v2.cpp(171): error C2065: Fn_domain_get_assemblies: необъявленный идентификатор
+es3hook_v2.cpp(171): error C2146: синтаксическая ошибка: отсутствие ";" перед идентификатором "GetProcAddress"

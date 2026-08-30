@@ -1,0 +1,331 @@
+=== раскладка таблиц описаний ===
+база GameAssembly.dll = 0x7FFD8C440000
+
+=== ENUM TaskbarHero.StatType ===
+    0    NONE
+    1    AttackDamage
+    2    AttackSpeed
+    3    CriticalChance
+    4    CriticalDamage
+    5    MaxHp
+    6    Armor
+    7    MovementSpeed
+    8    AreaOfEffect
+    9    BaseAttackCountReduction
+    10   CooldownReduction
+    11   SkillRangeExpansion
+    12   FireResistance
+    13   ColdResistance
+    14   LightningResistance
+    15   ChaosResistance
+    16   DodgeChance
+    17   BlockChance
+    18   MaxDodgeChance
+    19   MaxBlockChance
+    20   Multistrike
+    21   HpLeech
+    22   ProjectileCount
+    23   HpRegenPerSec
+    24   PhysicalDamagePercent
+    25   FireDamagePercent
+    26   ColdDamagePercent
+    27   LightningDamagePercent
+    28   ChaosDamagePercent
+    29   MaxFireResistance
+    30   MaxColdResistance
+    31   MaxLightningResistance
+    32   MaxChaosResistance
+    33   AddHpPerHit
+    34   DamageReduction
+    35   PhysicalDamageReduction
+    36   FireDamageReduction
+    37   ColdDamageReduction
+    38   LightningDamageReduction
+    39   ChaosDamageReduction
+    40   DamageAbsorption
+    41   DamageAddition
+    42   PhysicalDamageAddition
+    43   FireDamageAddition
+    44   ColdDamageAddition
+    45   LightningDamageAddition
+    46   ChaosDamageAddition
+    47   IncreaseExpAmount
+    48   AdditionalExp
+    49   CastSpeed
+    50   SkillHealIncrease
+    51   SkillDurationIncrease
+    52   AllElementalResistance
+    53   IncreaseProjectileDamage
+    54   IncreaseMeleeDamage
+    55   IncreaseAreaOfEffectDamage
+    56   IncreaseSummonDamage
+    57   IncreaseProjectileSpeed
+    58   AddHpPerKill
+    59   AddAllSkillLevel
+    60   ElementalBlockChance
+    61   ElementalDodgeChance
+    62   MaxElementalBlockChance
+    63   MaxElementalDodgeChance
+
+=== ENUM TaskbarHero.MODTYPE ===
+    0    FLAT
+    1    ADDITIVE
+    2    MULTIPLICATIVE
+
+=== TaskbarHero.Data.GearInfoData ===
+    klass = 0x1CD81C825E0   размер объекта = 0x68
+    +0x030  GearKey                            System.Int32
+    +0x034  BaseStat1_Value                    System.Int32
+    +0x038  BaseStat2_Value                    System.Int32
+    +0x03C  inherentStat1StatType              TaskbarHero.StatType
+    +0x040  InherentStat1_MODTYPE              TaskbarHero.MODTYPE
+    +0x044  InherentStat1_Value                System.Int32
+    +0x048  inherentStat2StatType              TaskbarHero.StatType
+    +0x04C  InherentStat2_MODTYPE              TaskbarHero.MODTYPE
+    +0x050  InherentStat2_Value                System.Int32
+    +0x054  inherentStat3StatType              TaskbarHero.StatType
+    +0x058  InherentStat3_MODTYPE              TaskbarHero.MODTYPE
+    +0x05C  InherentStat3_Value                System.Int32
+    +0x060  UniqueModKey                       System.Int32
+    полей: 13
+
+=== TaskbarHero.Data.GearTypeInfoData ===
+    klass = 0x1CD81A18510   размер объекта = 0x48
+    +0x030  GEARTYPE                           TaskbarHero.Data.EGearType
+    +0x034  baseStat1StatType                  TaskbarHero.StatType
+    +0x038  BaseStat1_MODTYPE                  TaskbarHero.MODTYPE
+    +0x03C  baseStat2StatType                  TaskbarHero.StatType
+    +0x040  BaseStat2_MODTYPE                  TaskbarHero.MODTYPE
+    полей: 5
+
+=== TaskbarHero.Data.GearTypeScaleInfoData ===
+    klass = 0x1CD819DA740   размер объекта = 0x48
+    +0x030  GearType                           TaskbarHero.Data.EGearType
+    +0x034  AlchemyGoldScale                   System.Int32
+    +0x038  CubeExpScale                       System.Int32
+    +0x03C  CalculatedAlchemyGoldScaleRatio    System.Single
+    +0x040  CalculatedCubeExpScaleRatio        System.Single
+    полей: 5
+
+=== TaskbarHero.Data.GradeInfoData ===
+    klass = 0x1CD81D5D150   размер объекта = 0x68
+    +0x030  GRADE                              TaskbarHero.Data.EGradeType
+    +0x034  Lower2GradeWeight                  System.Int32
+    +0x038  Lower1GradeWeight                  System.Int32
+    +0x03C  SameGradeWeight                    System.Int32
+    +0x040  Higher1GradeWeight                 System.Int32
+    +0x044  Higher2GradeWeight                 System.Int32
+    +0x048  InherentSlotAmount                 System.Int32
+    +0x04C  ExtraSlotAmount_Decoration         System.Int32
+    +0x050  ExtraSlotAmount_Engraving          System.Int32
+    +0x054  ExtraSlotAmount_Inscription        System.Int32
+    +0x058  BaseAlchemyGold                    System.Int64
+    +0x060  BaseCubeExp                        System.Int32
+    полей: 12
+
+=== TaskbarHero.Data.HeroInfoData ===
+    klass = 0x1CD81CC1970   размер объекта = 0xC0
+    +0x030  HeroKey                            System.Int32
+    +0x038  HeroNameKey                        System.String
+    +0x040  DescriptionKey                     System.String
+    +0x048  ClassType                          TaskbarHero.Data.EEquipClassType
+    +0x04C  MainWeaponGearType                 TaskbarHero.Data.EGearType
+    +0x050  SubWeaponGearType                  TaskbarHero.Data.EGearType
+    +0x054  SkillKey                           System.Int32
+    +0x058  AttackDamage                       System.Int32
+    +0x05C  AttackSpeed                        System.Int32
+    +0x060  CastSpeed                          System.Int32
+    +0x064  CriticalChance                     System.Int32
+    +0x068  CriticalDamage                     System.Int32
+    +0x06C  CooldownReduction                  System.Int32
+    +0x070  MaxHp                              System.Int32
+    +0x074  Armor                              System.Int32
+    +0x078  MovementSpeed                      System.Int32
+    +0x07C  UnlockCost                         System.Int32
+    +0x080  IsMeleeHero                        System.Boolean
+    +0x081  IsAvailable                        System.Boolean
+    +0x082  IsFirstAvailable                   System.Boolean
+    +0x084  SelectSoundKey                     System.Int32
+    +0x088  DeadSoundKey                       System.Int32
+    +0x090  IconPath                           System.String
+    +0x098  DeadIconPath                       System.String
+    +0x0A0  PrefabPath                         System.String
+    +0x0A8  AnimatorPath                       System.String
+    +0x0B0  DLCAppId                           System.Int32
+    +0x0B4  DLCBitIndex                        System.Int32
+    +0x0B8  HasDLCDrop                         System.Boolean
+    полей: 29
+
+=== TaskbarHero.Data.ItemGroupInfoData ===
+    klass = 0x1CD81A17AB0   размер объекта = 0x48
+    +0x030  ItemGroupKey                       System.Int32
+    +0x038  GroupName                          System.String
+    +0x040  ItemKey                            System.Int32
+    полей: 3
+
+=== TaskbarHero.Data.ItemInfoData ===
+    klass = 0x1CD81BDD7A0   размер объекта = 0x88
+    +0x030  ItemKey                            System.Int32
+    +0x034  ITEMTYPE                           TaskbarHero.Data.EItemType
+    +0x038  GRADE                              TaskbarHero.Data.EGradeType
+    +0x03C  PARTS                              TaskbarHero.Data.EItemParts
+    +0x040  GEARTYPE                           TaskbarHero.Data.EGearType
+    +0x044  GearGroup                          TaskbarHero.Data.EGearGroup
+    +0x048  ItemSynthesisType                  TaskbarHero.Data.EItemSynthesisType
+    +0x050  NameKey                            System.String
+    +0x058  DescriptionKey                     System.String
+    +0x060  GearKey                            System.Int32
+    +0x064  DropKey                            System.Int32
+    +0x068  DropCooldown                       System.Int32
+    +0x06C  Level                              System.Int32
+    +0x070  IsSteamItem                        System.Boolean
+    +0x078  IconPath                           System.String
+    +0x080  IsDeletedInServer                  System.Boolean
+    +0x081  IsCanExchangeMarketable            System.Boolean
+    +0x082  TemporaryBlockTradingStash         System.Boolean
+    +0x083  IsBucketBox                        System.Boolean
+    полей: 19
+
+=== ENUM TaskbarHero.Data.EItemType ===
+    0    STAGEBOX
+    1    MATERIAL
+    2    GEAR
+    3    NONE
+
+=== ENUM TaskbarHero.Data.EEquipClassType ===
+    0    All
+    1    Knight
+    2    Ranger
+    3    Sorcerer
+    4    Priest
+    5    Hunter
+    6    Slayer
+
+=== ENUM TaskbarHero.Data.EGradeType ===
+    0    COMMON
+    1    UNCOMMON
+    2    RARE
+    3    LEGENDARY
+    4    IMMORTAL
+    5    ARCANA
+    6    BEYOND
+    7    CELESTIAL
+    8    DIVINE
+    9    COSMIC
+    10   NONE
+
+=== ENUM TaskbarHero.Data.EItemParts ===
+    0    NONE
+    1    MAIN_WEAPON
+    2    SUB_WEAPON
+    3    HELMET
+    4    ARMOR
+    5    GLOVES
+    6    BOOTS
+    7    AMULET
+    8    EARING
+    9    RING
+    10   BRACER
+
+=== ENUM TaskbarHero.Data.EGearGroup ===
+    0    NONE
+    1    WEAPON
+    2    ARMOR
+    3    ACCESSORY
+    4    COMMON
+
+=== ENUM TaskbarHero.Data.EGearType ===
+    0    NONE
+    1    SWORD
+    2    BOW
+    3    STAFF
+    4    SCEPTER
+    5    CROSSBOW
+    6    AXE
+    7    SHIELD
+    8    ARROW
+    9    ORB
+    10   TOME
+    11   BOLT
+    12   HATCHET
+    13   HELMET
+    14   ARMOR
+    15   GLOVES
+    16   BOOTS
+    17   AMULET
+    18   EARING
+    19   RING
+    20   BRACER
+
+=== TaskbarHero.Data.ItemLevelScaleInfoData ===
+    klass = 0x1CD81925780   размер объекта = 0x48
+    +0x030  ItemLevel                          System.Int32
+    +0x034  AlchemyGoldScale                   System.Int32
+    +0x038  CubeExpScale                       System.Int32
+    +0x03C  CalculatedAlchemyGoldScaleRatio    System.Single
+    +0x040  CalculatedCubeExpScaleRatio        System.Single
+    полей: 5
+
+=== TaskbarHero.Data.ItemTypeScaleInfoData ===
+    klass = 0x1CD81A19C80   размер объекта = 0x48
+    +0x030  ItemType                           TaskbarHero.Data.EItemType
+    +0x034  AlchemyGoldScale                   System.Int32
+    +0x038  CubeExpScale                       System.Int32
+    +0x03C  CalculatedAlchemyGoldScaleRatio    System.Single
+    +0x040  CalculatedCubeExpScaleRatio        System.Single
+    полей: 5
+
+=== ENUM TaskbarHero.Data.EMaterialType ===
+    0    DECORATION
+    1    SOULSTONE
+    2    ENGRAVING
+    3    INSCRIPTION
+    4    OFFERING
+    5    CRAFTING
+    6    NONE
+
+=== TaskbarHero.Data.MaterialInfoData ===
+    klass = 0x1CD81973F10   размер объекта = 0x40
+    +0x030  bgvu                               System.Int32
+    +0x034  bgvv                               TaskbarHero.Data.EMaterialType
+    +0x038  bgvw                               System.Int32
+    полей: 3
+
+=== TaskbarHero.Data.StatModInfoData ===
+    klass = 0x1CD81981B70   размер объекта = 0x50
+    +0x030  bgxi                               System.Int32
+    +0x034  bgxj                               System.Int32
+    +0x038  bgxk                               TaskbarHero.StatType
+    +0x03C  bgxl                               TaskbarHero.MODTYPE
+    +0x040  bgxm                               System.Int32
+    +0x044  bgxn                               System.Int32
+    +0x048  bgxo                               System.Int32
+    полей: 7
+
+=== TaskbarHero.Data.UniqueModInfoData ===
+    klass = 0x1CD81A762E0   размер объекта = 0xB0
+    +0x030  bgyn                               System.Int32
+    +0x034  bgyo                               TaskbarHero.Data.EGearUniqueMod
+    +0x038  bgyp                               TaskbarHero.Data.EParamExchangeType
+    +0x040  bgyq                               System.String
+    +0x048  bgyr                               System.Single
+    +0x04C  bgys                               TaskbarHero.Data.EDamageAttribute
+    +0x050  bgyt                               TaskbarHero.Data.EParamExchangeType
+    +0x058  bgyu                               System.String
+    +0x060  bgyv                               System.Single
+    +0x064  bgyw                               TaskbarHero.Data.EDamageAttribute
+    +0x068  bgyx                               TaskbarHero.Data.EParamExchangeType
+    +0x070  bgyy                               System.String
+    +0x078  bgyz                               System.Single
+    +0x07C  bgza                               TaskbarHero.Data.EDamageAttribute
+    +0x080  bgzb                               TaskbarHero.Data.EParamExchangeType
+    +0x088  bgzc                               System.String
+    +0x090  bgzd                               System.Single
+    +0x094  bgze                               TaskbarHero.Data.EDamageAttribute
+    +0x098  bgzf                               TaskbarHero.Data.EParamExchangeType
+    +0x0A0  bgzg                               System.String
+    +0x0A8  bgzh                               System.Single
+    +0x0AC  bgzi                               TaskbarHero.Data.EDamageAttribute
+    полей: 22
+
+=== выгружено классов: 21 ===

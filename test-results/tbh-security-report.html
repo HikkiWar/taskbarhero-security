@@ -1,0 +1,764 @@
+<title>TaskBarHero — Security Report</title>
+
+<style>
+  :root{
+    --bg:#F2F5F5; --surface:#FFFFFF; --surface-2:#E7ECEC; --surface-3:#DDE4E4;
+    --text:#151D1F; --text-muted:#57676A; --text-faint:#7A8A8C;
+    --border:#D0DADA; --border-strong:#B4C2C2;
+    --accent:#1B736E; --accent-ink:#0E4B47; --accent-soft:#DAEBE9;
+    --sev-high-fg:#A8362D; --sev-high-bg:#F7E2DF;
+    --sev-med-fg:#8A6119;  --sev-med-bg:#F7EDD8;
+    --sev-info-fg:#3D6C7C; --sev-info-bg:#E0EDF2;
+    --ok-fg:#31694A;       --ok-bg:#DFEEE4;
+    --font-display:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --font-body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    --font-mono:ui-monospace,"SF Mono","Cascadia Mono","Segoe UI Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#0E1315; --surface:#151C1E; --surface-2:#1C2528; --surface-3:#243033;
+      --text:#E3EAEA; --text-muted:#93A3A5; --text-faint:#758688;
+      --border:#283537; --border-strong:#3A4A4D;
+      --accent:#4EB0A9; --accent-ink:#8FD4CE; --accent-soft:#10312F;
+      --sev-high-fg:#E5776C; --sev-high-bg:#3A1F1C;
+      --sev-med-fg:#D6A244;  --sev-med-bg:#332914;
+      --sev-info-fg:#79AFC2; --sev-info-bg:#152A32;
+      --ok-fg:#63AF81;       --ok-bg:#16301F;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0E1315; --surface:#151C1E; --surface-2:#1C2528; --surface-3:#243033;
+    --text:#E3EAEA; --text-muted:#93A3A5; --text-faint:#758688;
+    --border:#283537; --border-strong:#3A4A4D;
+    --accent:#4EB0A9; --accent-ink:#8FD4CE; --accent-soft:#10312F;
+    --sev-high-fg:#E5776C; --sev-high-bg:#3A1F1C;
+    --sev-med-fg:#D6A244;  --sev-med-bg:#332914;
+    --sev-info-fg:#79AFC2; --sev-info-bg:#152A32;
+    --ok-fg:#63AF81;       --ok-bg:#16301F;
+  }
+  :root[data-theme="light"]{
+    --bg:#F2F5F5; --surface:#FFFFFF; --surface-2:#E7ECEC; --surface-3:#DDE4E4;
+    --text:#151D1F; --text-muted:#57676A; --text-faint:#7A8A8C;
+    --border:#D0DADA; --border-strong:#B4C2C2;
+    --accent:#1B736E; --accent-ink:#0E4B47; --accent-soft:#DAEBE9;
+    --sev-high-fg:#A8362D; --sev-high-bg:#F7E2DF;
+    --sev-med-fg:#8A6119;  --sev-med-bg:#F7EDD8;
+    --sev-info-fg:#3D6C7C; --sev-info-bg:#E0EDF2;
+    --ok-fg:#31694A;       --ok-bg:#DFEEE4;
+  }
+
+  body{ background:var(--bg); color:var(--text); font-family:var(--font-body);
+        font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:53rem; margin:0 auto; padding:3rem 1.5rem 5rem;
+         display:flex; flex-direction:column; gap:3.25rem; }
+  @media (max-width:640px){ .wrap{ padding:2rem 1.1rem 3.5rem; gap:2.5rem; } }
+
+  h1,h2,h3{ text-wrap:balance; }
+  h1{ font-family:var(--font-display); font-weight:600; font-size:clamp(2rem,5.5vw,2.85rem);
+      line-height:1.12; letter-spacing:-.015em; margin:0; }
+  h2{ font-family:var(--font-display); font-weight:600; font-size:clamp(1.35rem,3vw,1.65rem);
+      line-height:1.25; margin:0; }
+  h3{ font-family:var(--font-body); font-weight:650; font-size:1rem; margin:0; }
+  p{ margin:0; max-width:66ch; }
+  a{ color:var(--accent); text-decoration-thickness:1px; text-underline-offset:2px; }
+  a:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:2px; }
+
+  .eyebrow{ font-family:var(--font-mono); font-size:.7rem; font-weight:600;
+            letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); margin:0; }
+
+  .masthead{ display:flex; flex-direction:column; gap:1.1rem;
+             border-bottom:2px solid var(--border-strong); padding-bottom:1.75rem; }
+  .lede{ font-size:1.075rem; color:var(--text-muted); max-width:60ch; }
+  .meta{ display:grid; gap:.85rem 1.75rem;
+         grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));
+         margin-top:.35rem; padding-top:1.25rem; border-top:1px solid var(--border); }
+  .meta div{ display:flex; flex-direction:column; gap:.2rem; }
+  .meta dt{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.12em;
+            text-transform:uppercase; color:var(--text-faint); }
+  .meta dd{ margin:0; font-size:.9rem; font-family:var(--font-mono); }
+
+  section{ display:flex; flex-direction:column; gap:1.1rem; }
+  .section-head{ display:flex; flex-direction:column; gap:.35rem; }
+
+  .thesis{ background:var(--accent-soft); border:1px solid var(--border);
+           border-radius:3px; padding:1.4rem 1.5rem;
+           display:flex; flex-direction:column; gap:.7rem; }
+  .thesis strong{ color:var(--accent-ink); }
+
+  .scroll{ overflow-x:auto; border:1px solid var(--border); border-radius:3px;
+           background:var(--surface); }
+  table{ border-collapse:collapse; width:100%; font-size:.875rem; }
+  th,td{ text-align:left; padding:.62rem .85rem; border-bottom:1px solid var(--border);
+         vertical-align:top; }
+  thead th{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.1em;
+            text-transform:uppercase; color:var(--text-faint); font-weight:600;
+            background:var(--surface-2); white-space:nowrap; }
+  tbody tr:last-child td{ border-bottom:none; }
+  td.num,td.mono{ font-family:var(--font-mono); font-variant-numeric:tabular-nums;
+                  white-space:nowrap; }
+
+  .chip{ display:inline-block; font-family:var(--font-mono); font-size:.66rem;
+         font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+         padding:.17rem .5rem; border-radius:2px; white-space:nowrap; }
+  .s-high{ color:var(--sev-high-fg); background:var(--sev-high-bg); }
+  .s-med { color:var(--sev-med-fg);  background:var(--sev-med-bg); }
+  .s-info{ color:var(--sev-info-fg); background:var(--sev-info-bg); }
+  .s-ok  { color:var(--ok-fg);       background:var(--ok-bg); }
+
+  .finding{ border:1px solid var(--border); border-radius:3px; background:var(--surface);
+            display:flex; flex-direction:column; }
+  .finding-head{ display:flex; align-items:center; gap:.85rem; flex-wrap:wrap;
+                 padding:.9rem 1.25rem; border-bottom:1px solid var(--border);
+                 background:var(--surface-2); }
+  .fid{ font-family:var(--font-mono); font-size:.78rem; font-weight:700;
+        color:var(--text-faint); }
+  .finding-head h3{ flex:1 1 14rem; font-family:var(--font-display); font-weight:600;
+                    font-size:1.1rem; }
+  .finding-body{ padding:1.25rem; display:flex; flex-direction:column; gap:1rem; }
+  .kv{ display:grid; grid-template-columns:auto 1fr; gap:.3rem 1rem; font-size:.85rem; }
+  .kv dt{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.1em;
+          text-transform:uppercase; color:var(--text-faint); padding-top:.2rem; }
+  .kv dd{ margin:0; }
+
+  pre{ font-family:var(--font-mono); font-size:.8rem; line-height:1.6;
+       background:var(--surface-3); border:1px solid var(--border); border-radius:3px;
+       padding:.9rem 1rem; overflow-x:auto; margin:0; }
+  code{ font-family:var(--font-mono); font-size:.88em; background:var(--surface-2);
+        padding:.08em .34em; border-radius:2px; overflow-wrap:anywhere; }
+  /* внутри pre перенос не нужен — там своя горизонтальная прокрутка */
+  pre code{ background:none; padding:0; font-size:1em; overflow-wrap:normal; }
+
+  /* Списки остаются блочными.
+     display:flex / grid на списке превращает КАЖДЫЙ инлайновый узел внутри li
+     в отдельный элемент раскладки — <code> тогда сжимается до ширины колонки
+     и наезжает на соседний текст. Отступы задаём margin, а не gap. */
+  ol,ul{ margin:0; padding-left:1.35rem; max-width:66ch; }
+  li + li{ margin-top:.5rem; }
+  li::marker{ color:var(--text-faint); }
+  li > p{ margin-top:.4rem; }
+
+  ol.steps{ counter-reset:step; list-style:none; padding-left:0; }
+  ol.steps li{ counter-increment:step; position:relative; padding-left:2.5rem;
+               min-height:1.5rem; }
+  ol.steps li + li{ margin-top:.9rem; }
+  ol.steps li::before{ content:counter(step); position:absolute; left:0; top:.12em;
+                       width:1.6rem; height:1.35rem; box-sizing:border-box;
+                       font-family:var(--font-mono); font-size:.72rem; font-weight:700;
+                       color:var(--accent-ink); background:var(--accent-soft);
+                       border-radius:2px; display:flex; align-items:center;
+                       justify-content:center; }
+
+  .note{ font-size:.85rem; color:var(--text-muted); max-width:66ch; }
+  .redact{ background:var(--surface-3); color:var(--text-muted);
+           border-bottom:1px dashed var(--border-strong); }
+
+  footer{ border-top:1px solid var(--border); padding-top:1.5rem; font-size:.82rem;
+          color:var(--text-faint); display:flex; flex-direction:column; gap:.5rem; }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Security Vulnerability Report · Responsible Disclosure</p>
+    <h1>Rewards are validated by value, never by rate</h1>
+    <p class="lede">
+      Two save collections accept unvalidated client values, and one unprotected price
+      table lets a rune upgrade pay the player instead of charging them. Everything else
+      we attacked was correctly rejected — which is what makes the remaining gap precise
+      rather than systemic.
+    </p>
+    <dl class="meta">
+      <div><dt>Product</dt><dd>TaskBarHero (TBH)</dd></div>
+      <div><dt>Build</dt><dd>Steam · Unity 6000.0.72f1 · IL2CPP</dd></div>
+      <div><dt>Save version</dt><dd>1.01.02</dd></div>
+      <div><dt>Tested</dt><dd>2026-07-26</dd></div>
+      <div><dt>Findings</dt><dd>3 high, 2 medium, 1 info</dd></div>
+      <div><dt>Status</dt><dd>All reproduced on a live account</dd></div>
+    </dl>
+  </header>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">The core issue</p>
+      <h2>What the server never sees</h2>
+    </div>
+    <div class="thesis">
+      <p>
+        Your protection works on <strong>what</strong> a value is, not on <strong>how fast
+        it arrived</strong>. Writing gold, experience or stage progress directly is rejected
+        every time — we tried, and the server restored the true value in all cases.
+      </p>
+      <p>
+        But a client whose damage has been multiplied kills far faster than the game
+        intends, and every reward that follows is issued by your own code through the
+        normal path. The server sees a stream of individually valid grants and accepts
+        all of them.
+      </p>
+    </div>
+    <p>
+      Measured on a live account over roughly forty minutes, with only in-memory combat
+      values changed and no save file touched:
+    </p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Value</th><th>Before</th><th>After</th><th>Gain</th></tr></thead>
+        <tbody>
+          <tr><td>Hero 101 experience</td><td class="num">1 164 600</td><td class="num">2 142 469</td><td class="num">+978 000</td></tr>
+          <tr><td>Hero 401 experience</td><td class="num">581 846</td><td class="num">1 567 669</td><td class="num">+986 000</td></tr>
+          <tr><td>Hero 201 level</td><td class="num">21</td><td class="num">22</td><td>full level</td></tr>
+          <tr><td><code>maxCompletedStage</code></td><td class="num">1 207</td><td class="num">1 306</td><td class="num">+99 stages</td></tr>
+          <tr><td>Gold</td><td class="num">124 722</td><td class="num">693 486</td><td class="num">+568 000</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      None of these were written by us. Every one was credited by the game itself and
+      persisted through restart and synchronisation. This is the vector to close: a
+      server-side sanity check on the <em>rate</em> of experience, gold and stage
+      progression would have caught all of it, and no per-value check ever will.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Method</p>
+      <h2>How the attack was carried out</h2>
+    </div>
+
+    <h3>Recovering the save password</h3>
+    <p>
+      Static extraction is not viable — the build is IL2CPP with GUPS.Obfuscator, so string
+      literals are encrypted at compile time. The password was taken at runtime instead:
+    </p>
+    <ol class="steps">
+      <li>Enumerated the constructors of <code>System.Security.Cryptography.Rfc2898DeriveBytes</code>
+          through the exported IL2CPP API (<code>il2cpp_class_from_name</code>,
+          <code>il2cpp_class_get_methods</code>), reading each method's native entry point.</li>
+      <li>Wrote <code>0xCC</code> at each entry point and caught the traps in a vectored
+          exception handler, re-arming through single-step so repeated calls were all seen.</li>
+      <li>Read the arguments at the moment of the call: <code>RDX</code> held the password
+          string, <code>R8</code> the salt array.</li>
+      <li>Decoded the managed string. The first attempt read length at <code>+0x14</code>
+          and rejected the value; the correct layout is length at <code>+0x10</code> and
+          UTF-16 characters at <code>+0x14</code>.</li>
+    </ol>
+    <p>
+      The recovered password is a fixed constant — identical across sessions, and the same
+      on a second installation.
+    </p>
+
+    <h3>Deriving the encryption scheme</h3>
+    <p>
+      The hook also gave the PBKDF2 parameters (100 iterations, SHA-1, 16-byte key). Only
+      the salt source was unknown, so nine candidates were tried against the file — the
+      password as UTF-16, various digests, the captured salt buffers. The one that produced
+      valid JSON was the file itself:
+    </p>
+<pre><code>salt = IV = first 16 bytes of the file      (one value, both roles)
+key    = PBKDF2-HMAC-SHA1(password, salt, iterations=100, dkLen=16)
+cipher = AES-128-CBC + PKCS#7
+file   = [salt/IV : 16 bytes][ciphertext]
+
+password = "<span class="redact">emuMqG3b…[withheld, 22 chars]</span>"</code></pre>
+    <p>
+      Confirmed by re-encrypting an <em>unmodified</em> payload with a fresh random salt:
+      the client accepted it silently, proving the scheme was fully reproduced.
+    </p>
+    <p class="note">
+      One detail matters for reproduction: the plaintext must be re-serialised byte-exactly.
+      ES3 writes CRLF line endings, tab indentation and spaces around colons; any deviation
+      trips the integrity check. Our serialiser round-trips the real save byte-for-byte
+      across 273 308 bytes.
+    </p>
+
+    <h3>Why file editing was abandoned</h3>
+    <p>
+      Editing the decrypted save is <strong>detected correctly</strong> — the client warns
+      and restores authoritative data. That control works. It is also irrelevant, because
+      patching the same values in process memory instead makes the client serialise them
+      itself on its next autosave, with no warning and no rollback. The file-level integrity
+      check therefore protects nothing that the client is authoritative over.
+    </p>
+    <p class="note">
+      All subsequent findings use only <code>ReadProcessMemory</code> and
+      <code>WriteProcessMemory</code> against a running client. No injected library, no
+      hooking, no debugger.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Findings</p>
+      <h2>Confirmed issues</h2>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <thead><tr><th>ID</th><th>Finding</th><th>Component</th><th>Severity</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">F-01</td><td>Negative upgrade price credits gold; the gold persists</td><td class="mono">rune price table</td><td><span class="chip s-high">High</span></td></tr>
+          <tr><td class="mono">F-02</td><td>Hero attribute levels accepted from the client</td><td class="mono">attributeSaveDatas</td><td><span class="chip s-high">High</span></td></tr>
+          <tr><td class="mono">F-03</td><td>Rune levels accepted; locked runes can be unlocked</td><td class="mono">RuneSaveData</td><td><span class="chip s-high">High</span></td></tr>
+          <tr><td class="mono">F-04</td><td>Combat stats and the experience multiplier are freely writable</td><td class="mono">runtime stat block</td><td><span class="chip s-med">Medium</span></td></tr>
+          <tr><td class="mono">F-05</td><td>Spent levels may exceed the hero's ability-point budget</td><td class="mono">AllocatedHeroAbilityPoint</td><td><span class="chip s-med">Medium</span></td></tr>
+          <tr><td class="mono">F-06</td><td>Save encryption uses a static password</td><td class="mono">SaveFile_Live.es3</td><td><span class="chip s-info">Info</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <article class="finding">
+      <div class="finding-head">
+        <span class="fid">F-01</span>
+        <h3>A negative price makes the upgrade pay the player</h3>
+        <span class="chip s-high">High</span>
+      </div>
+      <div class="finding-body">
+        <dl class="kv">
+          <dt>Impact</dt><dd>Unlimited gold, credited through the normal transaction path.</dd>
+          <dt>Persistence</dt><dd>Survives restart and synchronisation.</dd>
+          <dt>Status</dt><dd><span class="chip s-ok">Confirmed</span> on a live account</dd>
+        </dl>
+        <p>
+          The rune upgrade cost table sits in ordinary read/write memory with no protection:
+          672 rows, stride <code>0x50</code>, each
+          <code>&lt;RuneKey&gt;&lt;Level&gt;&lt;currencyKey&gt;&lt;cost&gt;</code>. Writing a
+          negative cost inverts the transaction — upgrading a rune adds gold instead of
+          removing it.
+        </p>
+        <p>
+          This is the most serious finding precisely because the gold does <em>not</em>
+          arrive by a forged write. It is granted by your own purchase code, enters the
+          protected store as legitimately earned, and survives everything. Direct writes to
+          the same balance are rejected; this path is not.
+        </p>
+        <p class="note">
+          The price table resets on restart, but the gold does not. Re-applying takes one
+          write, so the cycle is unbounded.
+        </p>
+      </div>
+    </article>
+
+    <article class="finding">
+      <div class="finding-head">
+        <span class="fid">F-02</span>
+        <h3>Hero attribute levels are client-authoritative</h3>
+        <span class="chip s-high">High</span>
+      </div>
+      <div class="finding-body">
+        <dl class="kv">
+          <dt>Impact</dt><dd>Permanent, unbounded increase of any hero stat.</dd>
+          <dt>Persistence</dt><dd>Survives restart and synchronisation.</dd>
+          <dt>Status</dt><dd><span class="chip s-ok">Confirmed</span> reverted after test</dd>
+        </dl>
+        <p>
+          <code>AttributeSaveData</code> instances are plain managed objects. Writing the
+          <code>Level</code> field is sufficient; the client serialises the new value on its
+          next autosave, with no warning and no rollback on the following launch.
+        </p>
+<pre><code>IL2CPP object layout (x64)
+  +0x00  klass pointer
+  +0x08  monitor
+  +0x10  Key    (int32)     e.g. 101002
+  +0x14  Level  (int32)     &lt;-- written</code></pre>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Attribute</th><th>Before</th><th>After</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">101002 (HP)</td><td class="num">8</td><td class="num">58</td><td>persisted</td></tr>
+              <tr><td class="mono">101001 (attack)</td><td class="num">3</td><td class="num">6</td><td>persisted</td></tr>
+              <tr><td class="mono">101003 (locked node)</td><td class="num">0</td><td class="num">1</td><td>persisted</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          Because damage derives from this tree, the finding is not a stat display issue: it
+          is a permanent multiplier that then drives the reward stream described above.
+        </p>
+      </div>
+    </article>
+
+    <article class="finding">
+      <div class="finding-head">
+        <span class="fid">F-03</span>
+        <h3>Rune levels are client-authoritative, including unlock</h3>
+        <span class="chip s-high">High</span>
+      </div>
+      <div class="finding-body">
+        <dl class="kv">
+          <dt>Impact</dt><dd>Any of the 197 runes can be unlocked and levelled for free.</dd>
+          <dt>Status</dt><dd><span class="chip s-ok">Confirmed</span> reverted after test</dd>
+        </dl>
+        <p>
+          <code>RuneSaveData</code> is <code>{ RuneKey, Level }</code> with the same layout as
+          F-02. There is no separate unlock flag, so <code>Level 0 → 1</code> <em>is</em> the
+          unlock — unlocking and upgrading are the same write.
+        </p>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Rune</th><th>Before</th><th>After</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">110011 (owned)</td><td class="num">3</td><td class="num">4</td><td>persisted</td></tr>
+              <tr><td class="mono">160011 (locked)</td><td class="num">0</td><td class="num">1</td><td>persisted</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="note">
+          146 of 197 runes were at level 0 at test time. Only loop count separates the
+          single-node test above from unlocking the whole tree; this was deliberately not done.
+        </p>
+      </div>
+    </article>
+
+    <article class="finding">
+      <div class="finding-head">
+        <span class="fid">F-04</span>
+        <h3>Combat stats and the experience multiplier are freely writable</h3>
+        <span class="chip s-med">Medium</span>
+      </div>
+      <div class="finding-body">
+        <dl class="kv">
+          <dt>Impact</dt><dd>Arbitrary damage, survivability and experience gain for the session.</dd>
+          <dt>Persistence</dt><dd>Values reset on restart — the rewards they produce do not.</dd>
+          <dt>Status</dt><dd><span class="chip s-ok">Confirmed</span></dd>
+        </dl>
+        <p>
+          The computed combat profile is a float array with <code>0x10</code> stride. One
+          anchor gives access to the whole set, and the same structure is used for enemies —
+          mob health is reachable the same way and can be set to 1.
+        </p>
+<pre><code>-0x40  attack damage      -0x30  attack speed
+-0x20  crit chance        -0x10  crit damage
+ 0x00  MAX HP             +0x10  defence
+
++0x2A0  experience multiplier   (1.0 = normal 100%)
++0x2B0  additional experience
++0x350  HP per kill</code></pre>
+        <p>
+          Setting <code>+0x2A0</code> to 50 000 makes a single kill award tens of thousands
+          of experience. As with F-01, the experience is granted by your own code and is
+          therefore kept — direct writes to <code>HeroExp</code> are rejected, this path is not.
+        </p>
+        <p class="note">
+          None of these values exist in the save file; they are recomputed from attributes
+          and equipment at load. That is why a restart clears them, and why fixing only the
+          persistent findings would move this vector rather than remove it.
+        </p>
+      </div>
+    </article>
+
+    <article class="finding">
+      <div class="finding-head">
+        <span class="fid">F-05</span>
+        <h3>Attribute levels may exceed the ability-point budget</h3>
+        <span class="chip s-med">Medium</span>
+      </div>
+      <div class="finding-body">
+        <p>
+          No invariant ties spent levels to earned points. In one test the sum of a hero's
+          attribute levels was driven <strong>53 above</strong>
+          <code>AllocatedHeroAbilityPoint</code> and accepted silently. A minimal case was
+          reproduced with the hero at <code>AbilityPoint = 0</code>: a node raised from 0 to 1
+          gave <code>sum = 23</code> against a budget of <code>22</code>, and was saved
+          without complaint.
+        </p>
+        <p class="note">This is the cheapest fix in the report and is independent of F-02.</p>
+      </div>
+    </article>
+
+    <article class="finding">
+      <div class="finding-head">
+        <span class="fid">F-06</span>
+        <h3>Save encryption uses a static password</h3>
+        <span class="chip s-info">Info</span>
+      </div>
+      <div class="finding-body">
+        <p>
+          Method and formula are given above. Listed as informational because it is
+          <em>not</em> what enables the other findings — file edits are correctly detected
+          and rolled back. It matters because one recovered constant removes any
+          confidentiality expectation for every player's save.
+        </p>
+        <p class="note">
+          The full password is withheld from this page and will be supplied directly in the
+          private disclosure message.
+        </p>
+      </div>
+    </article>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Proof of concept</p>
+      <h2>Memory layout and working code</h2>
+    </div>
+    <p>
+      Everything below runs against a normally launched client with no injected library and
+      no debugger. It is included so your team can reproduce each finding directly rather
+      than take the report on trust.
+    </p>
+
+    <h3>Object layouts</h3>
+<pre><code>AttributeSaveData / RuneSaveData   (IL2CPP class, x64)
+  +0x00  klass pointer          &gt; 0x10000000000
+  +0x08  monitor                = 0
+  +0x10  Key / RuneKey (int32)
+  +0x14  Level         (int32)  &lt;-- target
+
+ItemSaveData                       (8-byte aligned fields)
+  +0x10  ItemKey     +0x18  UniqueId     +0x20  flags
+  +0x28  EnchantCount*            +0x30  EnchantData*
+  +0x38  ItemGetSourceType
+
+Currency
+  +0x00  Key (int64, 100001)      +0x08  Quantity (int64)
+
+Rune price table                   672 rows, stride 0x50
+  &lt;int RuneKey&gt;&lt;int Level&gt;&lt;int currencyKey&gt;&lt;int cost&gt;
+
+Computed combat stats              float array, stride 0x10
+  -0x40 damage    -0x30 attack speed   -0x20 crit chance
+  -0x10 crit dmg   0x00 MAX HP         +0x10 defence
+  +0x2A0 experience multiplier   +0x2B0 bonus exp   +0x350 HP per kill</code></pre>
+    <p class="note">
+      The same combat-stat layout is used for enemies. Mob blocks are distinguishable by
+      <code>defence == 1</code>; hero blocks have defence in the hundreds. Setting a mob's
+      MAX HP to 1 makes every enemy die to a single hit.
+    </p>
+
+    <h3>F-02 — permanent attribute change</h3>
+<pre><code>import ctypes, struct
+
+def find_attribute(proc, key):
+    """Objects are identified by header, not by address: a valid klass
+    pointer at -0x10 and a zero monitor at -0x08 separate real instances
+    from the static tables that also contain the key."""
+    needle, hits = struct.pack("&lt;i", key), []
+    for base, size in committed_rw_regions(proc):
+        data = read(proc, base, size)
+        off = data.find(needle)
+        while off != -1:
+            klass, monitor = struct.unpack_from("&lt;QQ", data, off - 0x10)
+            if klass &gt; 0x10000000000 and monitor == 0:
+                hits.append(base + off + 4)        # address of Level
+            off = data.find(needle, off + 1)
+    return hits
+
+for addr in find_attribute(proc, 101002):          # 101002 = hero 101 HP node
+    write_i32(proc, addr, 58)                      # was 8
+
+# wait for the client's own autosave (~3 min), then relaunch.
+# The value is present in the save and survives synchronisation.</code></pre>
+
+    <h3>F-01 — negative price credits gold</h3>
+<pre><code>rows = find_cost_rows(proc)        # 672 rows located by currencyKey
+for cost_addr, rune_key, level, cost in rows:
+    write_i32(proc, cost_addr, -100)
+
+# Upgrading any rune now ADDS 100 gold instead of spending it.
+# The gold is credited by the game's own transaction code, enters the
+# protected store as legitimately earned, and survives restart.</code></pre>
+
+    <h3>F-04 — experience multiplier</h3>
+<pre><code>block = find_stat_block(proc, max_hp=351.0)   # anchor from the STATUS panel
+write_f32(proc, block + 0x2A0, 50_000.0)      # 1.0 = normal 100%
+
+# One kill now awards tens of thousands of experience.
+# Direct writes to HeroExp are rejected; this path is not, because the
+# experience is granted by the game rather than written by the attacker.</code></pre>
+    <p class="note">
+      Note what makes F-01 and F-04 different in kind from F-02. They never write a
+      protected value at all — they change an input to your own reward logic and let it
+      do the crediting. No integrity check on the stored value can see this.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Control group</p>
+      <h2>What already works</h2>
+    </div>
+    <p>
+      These were attacked with the same method and effort as the findings above, and your
+      existing protection defeated all of them. On save, the client rebuilds the record from
+      a protected store and serialises that — a freshly allocated object holding the true
+      value appeared every time, while the patched copies were ignored. This is the mechanism
+      to extend.
+    </p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Target</th><th>Attempted</th><th>Outcome</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">itemSaveDatas</td><td>inject / delete / rewrite <code>ItemKey</code></td><td><span class="chip s-ok">Blocked</span></td></tr>
+          <tr><td class="mono">itemSaveDatas</td><td>add a modifier to equipped gear</td><td><span class="chip s-ok">Blocked</span> reverted to zero</td></tr>
+          <tr><td class="mono">currenySaveDatas</td><td>gold +123 456 written directly</td><td><span class="chip s-ok">Blocked</span></td></tr>
+          <tr><td class="mono">heroSaveDatas.HeroExp</td><td>+1 000 000 written directly</td><td><span class="chip s-ok">Blocked</span></td></tr>
+          <tr><td class="mono">heroSaveDatas.AbilityPoint</td><td>0 → 5</td><td><span class="chip s-ok">Blocked</span></td></tr>
+          <tr><td class="mono">aggregateSaveDatas</td><td>statistics counter raised</td><td><span class="chip s-ok">Blocked</span></td></tr>
+          <tr><td class="mono">maxCompletedStage</td><td>1207 → 1210 written directly</td><td><span class="chip s-ok">Blocked</span></td></tr>
+          <tr><td class="mono">BoxData</td><td>inspect / alter chest contents</td><td><span class="chip s-ok">Blocked</span> contents are server-side</td></tr>
+          <tr><td class="mono">SaveFile_Live.es3</td><td>edit the decrypted save</td><td><span class="chip s-ok">Blocked</span> warning + rollback</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      Note the shape of this list: experience, ability points, statistics, currency, items
+      and stage progress are all protected. The exposure is two collections and one price
+      table — which reads as an oversight, not a design decision.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Remediation</p>
+      <h2>How to close each vector</h2>
+    </div>
+
+    <h3>1 · Sign-check every transaction <span class="chip s-high">closes F-01</span></h3>
+    <p>
+      The cheapest and most urgent fix. A purchase must never be able to increase the
+      player's balance:
+    </p>
+<pre><code>cost = price_table[rune_key][level]        // server-side table, not the client's
+assert cost &gt; 0                            // a purchase cannot pay the player
+assert player.gold &gt;= cost
+player.gold -= cost</code></pre>
+    <p class="note">
+      The price must come from the server's own table. Accepting a client-supplied cost is
+      what makes the negative value possible in the first place.
+    </p>
+
+    <h3>2 · Validate the rate, not just the value <span class="chip s-high">closes F-04</span></h3>
+    <p>
+      This is the finding no per-value check can reach, because every individual grant is
+      genuine. Progression has physical ceilings — derive them from your own balance data
+      and reject or flag anything far beyond:
+    </p>
+<pre><code>// per account, sliding window
+exp_gained   / elapsed  &lt;=  max_exp_per_second(stage, party)   * tolerance
+gold_gained  / elapsed  &lt;=  max_gold_per_second(stage)         * tolerance
+stages_cleared / elapsed &lt;= max_stage_rate(player_power)        * tolerance</code></pre>
+    <p>
+      A tolerance of 3–5× absorbs legitimate variance from equipment and buffs. The run
+      documented in this report exceeded any plausible ceiling by orders of magnitude —
+      99 stages and roughly two million experience in forty minutes — and would have been
+      caught immediately by even a loose bound.
+    </p>
+    <p class="note">
+      Rate checks also cover future variants of the same trick. Whatever an attacker
+      accelerates — damage, attack speed, mob health, drop rates — the observable outcome
+      is always an impossible reward rate.
+    </p>
+
+    <h3>3 · Turn the price into a tripwire <span class="chip s-ok">detects, not just blocks</span></h3>
+    <div class="thesis">
+      <p>
+        A sharper variant of fix 1, worth considering instead of a plain rejection.
+        <strong>Let the client keep sending the price it believes it paid</strong>, and
+        compare that field against the server's own table on every purchase. A mismatch is
+        not an anomaly to weigh — it is proof that the process memory was modified.
+      </p>
+    </div>
+<pre><code>// client already knows the price; make it part of the request
+POST /rune/upgrade  { rune_key, level, client_price }
+
+server:
+  real = price_table[rune_key][level]
+  if client_price != real:
+       flag_account(reason="price_mismatch",
+                    expected=real, reported=client_price)
+       // no legitimate client can produce this
+  charge(real)                       // always charge the real price</code></pre>
+    <p>
+      Why this is stronger than blocking outright:
+    </p>
+    <ul>
+      <li><strong>No false positives.</strong> Unlike the rate checks in fix 2, which need a
+          tolerance band for equipment and buffs, a price mismatch has no innocent
+          explanation — an unmodified client cannot generate one.</li>
+      <li><strong>It identifies the account, not just the attempt.</strong> A rejected
+          transaction tells you nothing about who tried; a mismatch report names them.</li>
+      <li><strong>It does not teach the attacker what you fixed.</strong> If the edit visibly
+          stops working, they move on and look for the next unprotected table — quietly. If
+          it appears to work, the signal keeps arriving.</li>
+    </ul>
+    <p class="note">
+      The same pattern generalises: any value the client computes from a table you also hold
+      can be echoed back and compared. Damage per hit, experience per kill and drop rolls are
+      all candidates — each one turns a silent memory edit into a signed confession. Pair it
+      with a deliberate response policy (flag and review rather than instant ban) so a
+      corrupted install or a stale build does not punish an honest player.
+    </p>
+
+    <h3>4 · Extend protected storage <span class="chip s-high">closes F-02, F-03</span></h3>
+    <p>
+      Apply the mechanism already guarding currency, items, experience, ability points and
+      stage progress to <code>attributeSaveDatas</code> and <code>RuneSaveData</code>. These
+      two collections are the only ones without it, and the code already exists.
+    </p>
+    <p>
+      Add the accompanying server-side invariants, which hold regardless of how the client
+      stores the values:
+    </p>
+<pre><code>Σ attributeSaveDatas[hero].Level  ≤  AllocatedHeroAbilityPoint[hero]
+AllocatedHeroAbilityPoint[hero]   ≤  points_for_level(HeroLevel[hero])
+Σ rune_upgrade_cost(rune, level)  ≤  currency actually spent by this account</code></pre>
+
+    <h3>5 · Reduce the value of a modified client</h3>
+    <p>
+      Combat stats (F-04) live only in memory and cannot be protected by storage checks —
+      a determined attacker will always be able to edit them. Treat that as given and make
+      it unprofitable instead: the rate checks above turn an accelerated client into a
+      flagged account rather than a rich one.
+    </p>
+    <p class="note">
+      We deliberately do not recommend client-side anti-tamper or anti-debug hardening as a
+      primary control. This engagement is itself the argument: the save-file integrity check
+      is well built and was bypassed in minutes by editing memory instead of the file.
+      Client-side checks raise cost; only server-side validation changes the outcome.
+    </p>
+
+    <h3>6 · Rotate the save password <span class="chip s-info">closes F-06</span></h3>
+    <p>
+      Treat the current constant as public. Deriving the key per account — for example from
+      the account identifier plus a server-issued secret — means one recovered value no
+      longer opens every player's save.
+    </p>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <p class="eyebrow">Scope</p>
+      <h2>Method, environment and limits</h2>
+    </div>
+    <p>
+      All work was local: the reporter's own account, own save file, own client. Attribute
+      and rune changes were reverted after verification, and a full comparison against a
+      pre-test backup confirmed no equipment, hero level, pet or item was lost or altered.
+      The progression figures in the first section were left in place as evidence and can be
+      rolled back on request.
+    </p>
+    <ul>
+      <li>User-mode memory reads and writes only. No injected library, no debugger, no
+          modified binary.</li>
+      <li>No attempt was made to have the server mint or duplicate any tradeable item, and
+          no production server logic was attacked. Item findings are limited to observing
+          that existing validation correctly rejects client-side changes.</li>
+      <li><strong>Not located:</strong> the static table holding base equipment stats, and
+          per-stage gold-drop values. Both are expected to share the exposure of F-04 but
+          this was not verified and should not be read as confirmed.</li>
+      <li>An earlier hypothesis that a particular structure held combat damage was withdrawn
+          — it was the TextMeshPro glyph table.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>
+      Prepared for private disclosure to Tesseract Studio / Nugem Studio. Nothing was
+      published or shared elsewhere and no exploit tooling accompanies this report. The
+      reporter is available to demonstrate any finding or supply the withheld password
+      through a channel of the vendor's choosing.
+    </p>
+    <p>Report compiled 2026-07-26 · all findings reproduced the same day.</p>
+  </footer>
+
+</div>

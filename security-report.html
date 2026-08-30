@@ -1,0 +1,2539 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security Report — Taskbar Hero</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
+  --border:#30363d;--border2:#484f58;
+  --text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --crit:#f85149;--crit-bg:#3d1a1a;--crit-bd:#6e2d2d;
+  --high:#e3a11d;--high-bg:#2d2007;--high-bd:#5a3d0a;
+  --med:#58a6ff;--med-bg:#0d2340;--med-bd:#1a4a7a;
+  --low:#3fb950;--low-bg:#0d2a10;--low-bd:#1a5c20;
+  --info:#8b949e;--info-bg:#21262d;--info-bd:#30363d;
+  --mono:'SF Mono','Cascadia Code','Fira Code',Consolas,monospace;
+  --r:6px;
+}
+@media(prefers-color-scheme:light){:root{
+  --bg:#f6f8fa;--bg2:#ffffff;--bg3:#eaeef2;--bg4:#d0d7de;
+  --border:#d0d7de;--border2:#adb5bd;
+  --text:#1f2328;--text2:#636c76;--text3:#9198a1;
+  --crit:#cf2121;--crit-bg:#fff0f0;--crit-bd:#ffc1c1;
+  --high:#8a5c00;--high-bg:#fff8e6;--high-bd:#f5c56a;
+  --med:#0550ae;--med-bg:#ddf4ff;--med-bd:#54aeff;
+  --low:#1a7f37;--low-bg:#dafbe1;--low-bd:#4ac261;
+  --info:#636c76;--info-bg:#f6f8fa;--info-bd:#d0d7de;
+}}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.65;padding:0 0 80px}
+a{color:var(--med)}
+.report-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:2rem 2.5rem}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:.5rem}
+.rpt-title{font-size:24px;font-weight:600;margin-bottom:1.25rem;line-height:1.3}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px}
+.mtag{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:4px 10px;font-size:12px;font-family:var(--mono);color:var(--text2)}
+.mtag span{color:var(--text);margin-left:4px;font-weight:500}
+.nav{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:100;overflow-x:auto}
+.nav a{padding:.7rem 1.1rem;font-size:13px;color:var(--text2);border-bottom:2px solid transparent;white-space:nowrap;text-decoration:none}
+.nav a:hover{color:var(--text);background:var(--bg3)}
+.page{max-width:980px;margin:0 auto;padding:2.5rem 1.75rem}
+section{margin-bottom:3rem}
+.stitle{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);padding-bottom:.55rem;margin-bottom:1.25rem}
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:.75rem}
+.sb{border-radius:var(--r);padding:1rem;text-align:center}
+.sb-n{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.sb-l{font-size:11px;font-weight:600;letter-spacing:.06em;margin-top:5px;text-transform:uppercase}
+.s-crit{background:var(--crit-bg);border:1px solid var(--crit-bd)}.s-crit .sb-n,.s-crit .sb-l{color:var(--crit)}
+.s-high{background:var(--high-bg);border:1px solid var(--high-bd)}.s-high .sb-n,.s-high .sb-l{color:var(--high)}
+.s-med{background:var(--med-bg);border:1px solid var(--med-bd)}.s-med .sb-n,.s-med .sb-l{color:var(--med)}
+.s-low{background:var(--low-bg);border:1px solid var(--low-bd)}.s-low .sb-n,.s-low .sb-l{color:var(--low)}
+.s-fix{background:var(--info-bg);border:1px solid var(--info-bd)}.s-fix .sb-n,.s-fix .sb-l{color:var(--info)}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;padding:.5rem .75rem;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.tbl td{padding:.6rem .75rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg2)}
+.tbl td:first-child{font-family:var(--mono);font-size:11px;color:var(--text2)}
+.pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.07em;padding:2px 7px;border-radius:4px;text-transform:uppercase}
+.pC{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-bd)}
+.pH{background:var(--high-bg);color:var(--high);border:1px solid var(--high-bd)}
+.pM{background:var(--med-bg);color:var(--med);border:1px solid var(--med-bd)}
+.pL{background:var(--low-bg);color:var(--low);border:1px solid var(--low-bd)}
+.pI{background:var(--info-bg);color:var(--info);border:1px solid var(--info-bd)}
+.pF{background:var(--low-bg);color:var(--low);border:1px solid var(--low-bd)}
+
+/* DEMO */
+.demo-box{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:1.5rem}
+.demo-controls{display:flex;gap:10px;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap}
+.demo-controls select{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:.5rem .75rem;border-radius:var(--r);font-size:13px;flex:1;min-width:200px;cursor:pointer}
+.demo-controls button{background:var(--crit-bg);border:1px solid var(--crit-bd);color:var(--crit);padding:.5rem 1.25rem;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.demo-controls button:hover{opacity:.8}
+.demo-split{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+@media(max-width:700px){.demo-split{grid-template-columns:1fr}}
+.demo-panel{background:var(--bg3);border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.dp-head{padding:.5rem .875rem;font-size:12px;font-weight:600;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border)}
+.dp-bad .dp-head{background:var(--crit-bg);color:var(--crit);border-color:var(--crit-bd)}
+.dp-good .dp-head{background:var(--low-bg);color:var(--low);border-color:var(--low-bd)}
+.dp-warn .dp-head{background:var(--high-bg);color:var(--high);border-color:var(--high-bd)}
+.demo-code{font-family:var(--mono);font-size:11.5px;padding:.875rem;line-height:1.6;min-height:140px;color:var(--text2);white-space:pre;overflow-x:auto}
+.demo-result{border-radius:var(--r);padding:.75rem 1rem;font-size:13px;font-weight:500;margin-top:.75rem;display:none}
+.dr-bad{background:var(--crit-bg);color:var(--crit);border:1px solid var(--crit-bd)}
+.dr-good{background:var(--low-bg);color:var(--low);border:1px solid var(--low-bd)}
+.cursor{display:inline-block;width:2px;height:13px;background:var(--text2);vertical-align:middle;animation:blink .8s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.step-log{font-family:var(--mono);font-size:11px;line-height:1.8;color:var(--text2)}
+.step-log .ok{color:var(--low)}.step-log .err{color:var(--crit)}.step-log .warn{color:var(--high)}
+
+/* FINDINGS */
+.finding{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.25rem}
+.fh{display:flex;align-items:flex-start;gap:.875rem;padding:.875rem 1.125rem;background:var(--bg2);border-bottom:1px solid var(--border)}
+.fstripe{width:4px;border-radius:2px;flex-shrink:0;min-height:20px}
+.sC{background:var(--crit)}.sH{background:var(--high)}.sM{background:var(--med)}.sL{background:var(--low)}.sI{background:var(--info)}
+.fid{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.ftitle{font-size:15px;font-weight:600;margin:.2rem 0 .35rem;line-height:1.3}
+.fb{padding:1.125rem 1.25rem}
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+.fl{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:.4rem}
+.ft{font-size:13px;color:var(--text2);line-height:1.6}
+.ft strong{color:var(--text);font-weight:500}
+code{font-family:var(--mono);font-size:11.5px;background:var(--bg3);border:1px solid var(--border);padding:1px 5px;border-radius:3px;color:#79c0ff}
+
+/* Request/Response panels */
+.rr{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.35rem 0}
+@media(max-width:700px){.rr{grid-template-columns:1fr}}
+.rr-panel{border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.rr-head{padding:.4rem .75rem;font-size:11px;font-weight:600;border-bottom:1px solid var(--border)}
+.rr-bad .rr-head{background:var(--crit-bg);color:var(--crit);border-color:var(--crit-bd)}
+.rr-good .rr-head{background:var(--low-bg);color:var(--low);border-color:var(--low-bd)}
+.rr-warn .rr-head{background:var(--high-bg);color:var(--high);border-color:var(--high-bd)}
+.rr-body{font-family:var(--mono);font-size:11.5px;background:var(--bg3);padding:.75rem .875rem;line-height:1.6;color:var(--text2);white-space:pre;overflow-x:auto}
+.kw{color:#ff7b72}.fn{color:#d2a8ff}.st{color:#a5d6ff}.cm{color:#6e7681;font-style:italic}.nm{color:#79c0ff}.vl{color:#f2cc60}.ok{color:#3fb950}
+.cb{font-family:var(--mono);font-size:11.5px;line-height:1.6;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.cb-h{padding:.4rem .875rem;font-size:11px;font-weight:600;display:flex;justify-content:space-between;border-bottom:1px solid var(--border)}
+.cb-bad .cb-h{background:var(--crit-bg);color:var(--crit);border-color:var(--crit-bd)}
+.cb-good .cb-h{background:var(--low-bg);color:var(--low);border-color:var(--low-bd)}
+.cb pre{background:var(--bg3);padding:.75rem 1rem;margin:0;overflow-x:auto;color:var(--text2)}
+.fix-box{background:var(--low-bg);border:1px solid var(--low-bd);border-radius:var(--r);padding:.6rem .875rem;font-size:13px;color:var(--low);line-height:1.6}
+.dv{height:1px;background:var(--border);margin:.75rem 0}
+
+/* ITEM TABLE */
+.item-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.item-tbl th{background:var(--bg3);text-align:left;padding:.45rem .65rem;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.item-tbl td{padding:.45rem .65rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.item-tbl tr:hover td{background:var(--bg2)}
+.item-tbl td.nm2{font-size:13px;font-weight:500;color:var(--text)}
+.item-tbl td.mono{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.item-tbl td.desc{font-size:11.5px;color:var(--text2)}
+.ic{width:36px;height:36px;text-align:center;padding:2px}
+.ic svg{display:block}
+.rC{color:#8b949e}.rR{color:#58a6ff}.rE{color:#d2a8ff}.rL{color:#e3a11d}
+.tW{color:#ff7b72}.tA{color:#79c0ff}.tAc{color:#f2cc60}.tCo{color:#3fb950}
+.badge-r{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px}
+.br-C{background:#21262d;color:#8b949e}.br-R{background:#0d2340;color:#58a6ff}.br-E{background:#1f1235;color:#d2a8ff}.br-L{background:#2d1f00;color:#e3a11d}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.filter-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;transition:all .15s}
+.filter-btn:hover,.filter-btn.active{background:var(--med-bg);border-color:var(--med-bd);color:var(--med)}
+.filter-label{font-size:11px;color:var(--text3);font-weight:600}
+
+/* PRIORITY */
+.pri-tbl{width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.pri-tbl td{padding:.75rem 1rem;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
+.pri-tbl tr:last-child td{border-bottom:none}
+.pri-tbl td:first-child{font-size:12px;font-weight:600;color:var(--text3);white-space:nowrap;background:var(--bg3);width:130px}
+.pri-tbl td:last-child{background:var(--bg2)}
+.footnote{font-size:12px;color:var(--text3);border-top:1px solid var(--border);padding-top:1rem;line-height:1.55}
+</style>
+</head>
+<body>
+
+<div class="report-header">
+  <p class="eyebrow">Security Audit Report · Конфиденциально · v2.0</p>
+  <h1 class="rpt-title">Taskbar Hero — Уязвимости, запросы и документация по исправлениям</h1>
+  <div class="meta-row">
+    <div class="mtag">Цель:<span>TaskbarHero.exe</span></div>
+    <div class="mtag">Версия:<span>1.00.28</span></div>
+    <div class="mtag">Движок:<span>Unity / IL2CPP</span></div>
+    <div class="mtag">Бэкенд:<span>thebackend.io (BACKND)</span></div>
+    <div class="mtag">Сервер:<span>AWS ap-northeast-2</span></div>
+    <div class="mtag">Steam AppID:<span>3678970</span></div>
+    <div class="mtag">Дата:<span>2026-07-21</span></div>
+    <div class="mtag">ACTk:<span>v6.8.0</span></div>
+  </div>
+</div>
+
+<nav class="nav">
+  <a href="#summary">Сводка</a>
+  <a href="#demo">Демо</a>
+  <a href="#charmanager">Персонаж</a>
+  <a href="#findings">Уязвимости</a>
+  <a href="#inventory">Предметы</a>
+  <a href="#priority">Приоритеты</a>
+</nav>
+
+<div class="page">
+
+<!-- SUMMARY -->
+<section id="summary">
+  <p class="stitle">Сводка</p>
+  <div class="stat-grid">
+    <div class="sb s-crit"><div class="sb-n">2</div><div class="sb-l">Critical</div></div>
+    <div class="sb s-high"><div class="sb-n">5</div><div class="sb-l">High</div></div>
+    <div class="sb s-med"><div class="sb-n">3</div><div class="sb-l">Medium</div></div>
+    <div class="sb s-low"><div class="sb-n">1</div><div class="sb-l">Low</div></div>
+    <div class="sb s-fix"><div class="sb-n">1</div><div class="sb-l">Исправлено</div></div>
+  </div>
+  <div style="overflow-x:auto">
+  <table class="tbl">
+    <thead><tr><th>ID</th><th>Критичность</th><th>Уязвимость</th><th>Статус</th></tr></thead>
+    <tbody>
+      <tr><td>TBH-001</td><td><span class="pill pC">Critical</span></td><td>Max HP принимается без серверной валидации</td><td>Открыта</td></tr>
+      <tr><td>TBH-002</td><td><span class="pill pC">Critical</span></td><td>Alpha/dev эндпоинты в production-бинаре</td><td>Открыта</td></tr>
+      <tr><td>TBH-003</td><td><span class="pill pH">High</span></td><td>Upload console по HTTP без TLS</td><td>Открыта</td></tr>
+      <tr><td>TBH-004</td><td><span class="pill pH">High</span></td><td>Google Apps Script без авторизации</td><td>Открыта</td></tr>
+      <tr><td>TBH-005</td><td><span class="pill pH">High</span></td><td>ID таблицы дропа контролируется клиентом</td><td>Открыта</td></tr>
+      <tr><td>TBH-006</td><td><span class="pill pH">High</span></td><td>AWS API Gateway без авторизации</td><td>Открыта</td></tr>
+      <tr><td>TBH-007</td><td><span class="pill pM">Medium</span></td><td>Anti-Cheat Toolkit обходится на API уровне</td><td>Открыта</td></tr>
+      <tr><td>TBH-008</td><td><span class="pill pM">Medium</span></td><td>InventoryReceivePostItemAllRequest без проверки</td><td>Открыта</td></tr>
+      <tr><td>TBH-009</td><td><span class="pill pM">Medium</span></td><td>BACKND токен в открытом реестре Windows</td><td>Открыта</td></tr>
+      <tr><td>TBH-010</td><td><span class="pill pL">Low</span></td><td>Steam ID в именах ключей PlayerPrefs</td><td>Открыта</td></tr>
+      <tr><td>TBH-011</td><td><span class="pill pI">Info</span></td><td>Дублирование предметов</td><td><span class="pill pF">Исправлено</span></td></tr>
+      <tr><td>TBH-012</td><td><span class="pill pH">High</span></td><td>Характеристики снаряжения подменяются клиентом</td><td>Открыта</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <p class="stitle">Интерактивная демонстрация атак</p>
+  <div class="demo-box">
+
+    <!-- Scenario selector -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;align-items:center">
+      <span style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em">Сценарий:</span>
+      <select id="dsel" onchange="onScenarioChange()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:.45rem .75rem;border-radius:var(--r);font-size:13px;flex:1;min-width:260px;cursor:pointer">
+        <option value="equip">TBH-012 — Equipment Stat Injection (снаряжение)</option>
+        <option value="maxhp">TBH-001 — Max HP Manipulation</option>
+        <option value="inventory">TBH-008 — Inventory Item Injection</option>
+        <option value="probability">TBH-005 — Probability Table Swap</option>
+        <option value="replay">TBH-011 — Request Replay (Исправлено)</option>
+        <option value="aws">TBH-006 — AWS Gateway Unauthorized</option>
+      </select>
+    </div>
+
+    <!-- Parameter builder -->
+    <div id="param-panel" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:1rem;margin-bottom:1rem"></div>
+
+    <!-- Buttons -->
+    <div style="display:flex;gap:8px;margin-bottom:.6rem;flex-wrap:wrap;align-items:center">
+      <button onclick="resetParams()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:.45rem 1rem;border-radius:var(--r);font-size:13px;cursor:pointer">↺ Сбросить к дефолту</button>
+      <button onclick="sendAttack()" id="btn-send" style="background:var(--crit-bg);border:1px solid var(--crit-bd);color:var(--crit);padding:.45rem 1.25rem;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;flex:1;min-width:160px">▶ Отправить запрос</button>
+      <div id="srv-badge" style="font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);color:var(--text3);white-space:nowrap;cursor:default" title="Запустите start-demo.bat">⏳ проверка...</div>
+    </div>
+    <!-- Mode row -->
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:.6rem">
+      <span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Режим:</span>
+      <span style="font-size:11px;padding:3px 11px;border-radius:4px;border:1px solid var(--med-bd);background:var(--med-bg);color:var(--med);font-weight:600">🔵 Local Mock</span>
+      <button id="btn-real-test" onclick="showPinModal()"
+        style="font-size:11px;padding:3px 11px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-weight:600;transition:border-color .15s,background .15s"
+        onmouseover="this.style.borderColor='var(--high-bd)';this.style.color='var(--high)'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">🔐 Real Test</button>
+      <button id="btn-real-exit" onclick="deactivateRealMode()"
+        style="display:none;font-size:11px;padding:3px 11px;border-radius:4px;cursor:pointer;border:1px solid var(--crit-bd);background:var(--crit-bg);color:var(--crit);font-weight:600">✕ Выйти</button>
+    </div>
+    <div id="token-panel" style="display:none;padding:.55rem .8rem;border-radius:6px;border:1px solid var(--high-bd);background:var(--high-bg);margin-bottom:.65rem">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:700;color:var(--high)">📡 Real Test активен</span>
+        <span id="token-status" style="font-size:12px;color:var(--text2)">⌛ Ожидание токена...</span>
+        <button onclick="clearCapturedToken()"
+          style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2)">✕ Очистить токен</button>
+      </div>
+      <div style="margin-top:.35rem;font-size:11px;color:var(--text3);line-height:1.6">
+        ① Запустите <b>Fiddler</b> → Tools → Options → Connections → Allow remote / декриптация HTTPS<br>
+        ② Откройте игру и выполните любое действие<br>
+        ③ Найдите запрос к <code>game.thebackend.io</code> → скопируйте значение заголовка <code>Authorization</code> в буфер обмена<br>
+        ④ Сервер подхватит токен автоматически ↑ статус обновится
+      </div>
+      <!-- Manual token paste -->
+      <div style="margin-top:.55rem;display:flex;gap:.45rem;align-items:center">
+        <input id="manual-token-input" type="text"
+          placeholder="Вставьте сюда: Bearer eyJ...  или просто eyJ..."
+          style="flex:1;font-size:11px;font-family:var(--mono);padding:.3rem .5rem;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:4px;min-width:0"
+          onkeydown="if(event.key==='Enter')applyManualToken()">
+        <button onclick="applyManualToken()"
+          style="font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;border:1px solid var(--low-bd);background:var(--low-bg);color:var(--low);font-weight:600;white-space:nowrap">
+          ✓ Применить
+        </button>
+      </div>
+      <!-- Process scanner / diagnostics -->
+      <div style="margin-top:.5rem;border-top:1px solid var(--high-bd);padding-top:.5rem">
+        <div style="display:flex;gap:.45rem;align-items:center;flex-wrap:wrap">
+          <button id="btn-interceptor" onclick="toggleInterceptor()"
+            style="font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;border:1px solid var(--med-bd);background:var(--med-bg);color:var(--med);font-weight:600">
+            📡 Автоперехват HTTPS
+          </button>
+          <button onclick="scanProcessNow()"
+            style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2)">
+            🔍 Сканировать память
+          </button>
+          <button onclick="toggleProcList()"
+            style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2)">
+            ⚙ Диагностика
+          </button>
+          <span id="scan-status" style="font-size:11px;color:var(--text3)"></span>
+        </div>
+        <div id="proc-diag" style="display:none;margin-top:.5rem">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:.35rem">
+            Укажите имя процесса игры (без .exe) — сервер просканирует его память:
+          </div>
+          <div style="display:flex;gap:.4rem;align-items:center;margin-bottom:.4rem">
+            <input id="proc-name-input" type="text" placeholder="напр. TaskbarHero"
+              style="flex:1;font-size:11px;font-family:var(--mono);padding:.3rem .5rem;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:4px;min-width:0"
+              onkeydown="if(event.key==='Enter')setProcessName()">
+            <button onclick="setProcessName()"
+              style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--med-bd);background:var(--med-bg);color:var(--med);font-weight:600;white-space:nowrap">
+              Применить
+            </button>
+            <button onclick="loadProcessList()"
+              style="font-size:11px;padding:3px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2)">
+              Список процессов
+            </button>
+          </div>
+          <div id="proc-list" style="max-height:160px;overflow-y:auto;font-size:11px;font-family:var(--mono);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:.4rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request / Response -->
+    <div class="demo-split" style="margin-bottom:.75rem">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--crit);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem">Исходящий HTTP запрос (клиент → сервер)</div>
+        <div class="demo-panel dp-bad" style="min-height:200px">
+          <div class="dp-head"><span>→</span> Отправка</div>
+          <div class="demo-code" id="dc-req" style="min-height:160px">Выберите сценарий и нажмите «Отправить запрос»</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--high);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem">Ответ сервера (текущий — уязвимый)</div>
+        <div class="demo-panel dp-warn" style="min-height:200px">
+          <div class="dp-head"><span>⚠</span> Уязвимый сервер</div>
+          <div class="demo-code" id="dc-srv" style="min-height:160px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-split" style="margin-bottom:.75rem">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--low);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem">Правильная обработка (после исправления)</div>
+        <div class="demo-panel dp-good" style="min-height:180px">
+          <div class="dp-head"><span>✓</span> Защищённый сервер</div>
+          <div class="demo-code" id="dc-fix" style="min-height:140px"></div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem">Пошаговый лог валидации</div>
+        <div class="demo-panel" style="border-color:var(--border);min-height:180px">
+          <div class="dp-head" style="background:var(--bg3);color:var(--text2)"><span>▸</span> Серверный лог</div>
+          <div class="demo-code step-log" id="dc-steps" style="min-height:140px"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-result" id="demo-result" style="display:none"></div>
+  </div>
+</section>
+
+<!-- CHARACTER MANAGER -->
+<section id="charmanager">
+  <p class="stitle">Менеджер персонажа</p>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem">Живые инструменты взаимодействия с игровым сервером</p>
+
+  <!-- Tab bar + badge -->
+  <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem;border-bottom:1px solid var(--border);padding-bottom:.75rem">
+    <button id="chartab-equipment" onclick="switchCharTab('equipment')"
+      style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--med-bd);background:var(--med-bg);color:var(--med);transition:all .15s">
+      ⚔ Снаряжение
+    </button>
+    <button id="chartab-inventory" onclick="switchCharTab('inventory')"
+      style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s">
+      🎒 Инвентарь
+    </button>
+    <button id="chartab-chest" onclick="switchCharTab('chest')"
+      style="font-size:12px;font-weight:600;padding:5px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s">
+      📦 Ящики
+    </button>
+    <div style="flex:1"></div>
+    <span id="char-srv-badge"
+      style="font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);color:var(--text3);white-space:nowrap">
+      ⏳ проверка...
+    </span>
+  </div>
+
+  <!-- ── EQUIPMENT TAB ──────────────────────────────────────────────────── -->
+  <div id="tab-equipment">
+    <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
+      <button onclick="loadPlayerState()" style="font-size:12px;padding:4px 12px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text2);cursor:pointer">🔄 Обновить</button>
+      <span id="eq-stats" style="font-size:12px;font-family:var(--mono);color:var(--text2)"></span>
+    </div>
+
+    <!-- Slot grid: 3 cols on desktop, auto on mobile -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.75rem;margin-bottom:1.25rem">
+      <div id="eqslot-weapon"    style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.875rem;min-height:120px;transition:border-color .3s"></div>
+      <div id="eqslot-armor"     style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.875rem;min-height:120px;transition:border-color .3s"></div>
+      <div id="eqslot-boots"     style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.875rem;min-height:120px;transition:border-color .3s"></div>
+      <div id="eqslot-helmet"    style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.875rem;min-height:120px;transition:border-color .3s"></div>
+      <div id="eqslot-gloves"    style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.875rem;min-height:120px;transition:border-color .3s"></div>
+      <div id="eqslot-accessory" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:.875rem;min-height:120px;transition:border-color .3s"></div>
+    </div>
+
+    <!-- Equip edit form (hidden by default) -->
+    <div id="equip-edit-form" style="display:none;background:var(--crit-bg);border:1px solid var(--crit-bd);border-radius:8px;padding:1.25rem;margin-bottom:1rem">
+      <div style="font-size:12px;font-weight:700;color:var(--crit);margin-bottom:.875rem">
+        ⚠ Редактировать слот: <span id="edit-slot-label" style="text-transform:capitalize"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.65rem;margin-bottom:.75rem">
+        <div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">Предмет</label>
+          <select id="edit-item-select" onchange="fillStatsFromItem(this.value)" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+            <option value="">— выберите предмет —</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">Редкость (клиентская)</label>
+          <select id="edit-rarity" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+            <option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option><option>Legendary</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">Прочность: <span id="dur-val">100</span>%</label>
+          <input id="edit-durability" type="range" min="0" max="100" value="100"
+            oninput="document.getElementById('dur-val').textContent=this.value" style="width:100%">
+        </div>
+      </div>
+      <!-- Stat override inputs — core vulnerability demo: server trusts client stats -->
+      <div style="margin-bottom:.75rem">
+        <div style="font-size:11px;color:var(--crit);margin-bottom:.4rem;font-weight:600">⚠ Статы (клиент диктует серверу — уязвимость):</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem">
+          <div>
+            <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:2px">ATK</label>
+            <input id="edit-atk" type="number" min="0" max="999999" value="0"
+              style="width:100%;background:var(--bg);border:1px solid var(--crit-bd);color:var(--crit);padding:.3rem .4rem;border-radius:var(--r);font-size:12px;font-family:var(--mono);box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:2px">DEF</label>
+            <input id="edit-def" type="number" min="0" max="999999" value="0"
+              style="width:100%;background:var(--bg);border:1px solid var(--crit-bd);color:var(--crit);padding:.3rem .4rem;border-radius:var(--r);font-size:12px;font-family:var(--mono);box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:2px">HP</label>
+            <input id="edit-hp" type="number" min="0" max="999999" value="0"
+              style="width:100%;background:var(--bg);border:1px solid var(--crit-bd);color:var(--crit);padding:.3rem .4rem;border-radius:var(--r);font-size:12px;font-family:var(--mono);box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:10px;color:var(--text3);display:block;margin-bottom:2px">MGK</label>
+            <input id="edit-mgk" type="number" min="0" max="999999" value="0"
+              style="width:100%;background:var(--bg);border:1px solid var(--crit-bd);color:var(--crit);padding:.3rem .4rem;border-radius:var(--r);font-size:12px;font-family:var(--mono);box-sizing:border-box">
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.75rem">
+        <button onclick="sendEquipVuln()"
+          style="font-size:12px;font-weight:700;padding:6px 16px;background:var(--crit-bg);border:1px solid var(--crit-bd);color:var(--crit);border-radius:5px;cursor:pointer">
+          ⚠ Отправить (уязвимый)
+        </button>
+        <button onclick="document.getElementById('equip-edit-form').style.display='none'"
+          style="font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text2);cursor:pointer">
+          Закрыть
+        </button>
+        <span style="font-size:11px;color:var(--crit)">Сервер принимает stats от клиента без ITEM_DB</span>
+      </div>
+      <pre id="equip-result" style="font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:.6rem .75rem;line-height:1.6;color:var(--crit);white-space:pre-wrap;min-height:30px"></pre>
+    </div>
+  </div>
+
+  <!-- ── INVENTORY TAB ──────────────────────────────────────────────────── -->
+  <div id="tab-inventory" style="display:none">
+    <div id="inventory-list" style="margin-bottom:1.25rem">
+      <div style="color:var(--text3);font-size:13px">Загрузка...</div>
+    </div>
+
+    <!-- Add item form -->
+    <div style="background:var(--crit-bg);border:1px solid var(--crit-bd);border-radius:8px;padding:1.25rem;margin-bottom:1rem">
+      <div style="font-size:12px;font-weight:700;color:var(--crit);margin-bottom:.875rem">⚠ Добавить предмет (уязвимый)</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.65rem;margin-bottom:.75rem">
+        <div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">Предмет</label>
+          <select id="grant-item-id" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+            <option value="">— выберите —</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">Редкость</label>
+          <select id="grant-rarity" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+            <option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option><option>Legendary</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">Кол-во</label>
+          <input id="grant-qty" type="number" value="1" min="1" max="9999"
+            style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">Прочность: <span id="grant-dur-val">100</span>%</label>
+          <input id="grant-durability" type="range" min="0" max="100" value="100"
+            oninput="document.getElementById('grant-dur-val').textContent=this.value" style="width:100%">
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+        <button onclick="grantItemVuln()"
+          style="font-size:12px;font-weight:700;padding:6px 16px;background:var(--crit-bg);border:1px solid var(--crit-bd);color:var(--crit);border-radius:5px;cursor:pointer">
+          ⚠ Выдать предмет (уязвимый)
+        </button>
+        <span style="font-size:11px;color:var(--crit)">Без проверки: никакой авторизации, любой предмет</span>
+      </div>
+      <pre id="grant-result" style="margin-top:.75rem;font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:.6rem .75rem;line-height:1.6;color:var(--crit);white-space:pre-wrap;min-height:30px"></pre>
+    </div>
+
+    <!-- Rarity legend -->
+    <div style="font-size:11px;color:var(--text3);padding-top:.5rem;border-top:1px solid var(--border)">
+      Редкость:
+      <span style="color:#9d9d9d">■ Common</span> &nbsp;
+      <span style="color:#1eff00">■ Uncommon</span> &nbsp;
+      <span style="color:#0070dd">■ Rare</span> &nbsp;
+      <span style="color:#a335ee">■ Epic</span> &nbsp;
+      <span style="color:#ff8000">■ Legendary</span>
+    </div>
+  </div>
+
+  <!-- ── CHEST TAB ──────────────────────────────────────────────────────── -->
+  <div id="tab-chest" style="display:none">
+    <!-- Chest selector -->
+    <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem">
+      <label style="font-size:12px;font-weight:600;color:var(--text2)">Тип ящика:</label>
+      <select id="chest-type" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:.35rem .75rem;border-radius:var(--r);font-size:13px;cursor:pointer">
+        <option value="wood_chest">🪵 Деревянный (Common / Uncommon)</option>
+        <option value="gold_chest">🏆 Золотой (Rare / Epic)</option>
+        <option value="boss_chest">💀 Боссовый (Epic / Legendary)</option>
+      </select>
+    </div>
+
+    <!-- Dual panel: vulnerable vs protected -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:1rem">
+
+      <!-- Vulnerable panel -->
+      <div style="background:var(--crit-bg);border:1px solid var(--crit-bd);border-radius:8px;overflow:hidden">
+        <div style="padding:.6rem 1rem;font-size:12px;font-weight:700;color:var(--crit);border-bottom:1px solid var(--crit-bd)">
+          ⚠ Подменить выпадение
+        </div>
+        <div style="padding:1rem">
+          <div style="margin-bottom:.65rem">
+            <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">forcedItemId (клиент контролирует)</label>
+            <select id="chest-forced-item" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+              <option value="">— нет (случайный) —</option>
+            </select>
+          </div>
+          <div style="margin-bottom:.75rem">
+            <label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">forcedRarity</label>
+            <select id="chest-forced-rarity" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+              <option value="">— авто —</option>
+              <option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option><option>Legendary</option>
+            </select>
+          </div>
+          <button onclick="openChest('vuln')"
+            style="width:100%;font-size:12px;font-weight:700;padding:7px;background:var(--crit-bg);border:1px solid var(--crit-bd);color:var(--crit);border-radius:5px;cursor:pointer;margin-bottom:.4rem">
+            📦 Открыть (уязвимый)
+          </button>
+          <div style="font-size:10px;color:var(--crit);line-height:1.4;margin-bottom:.5rem">
+            Vulnerability: сервер доверяет probabilityKey от клиента
+          </div>
+          <pre id="chest-result-vuln" style="font-family:var(--mono);font-size:10.5px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:.5rem .65rem;line-height:1.55;color:var(--crit);white-space:pre-wrap;min-height:50px"></pre>
+        </div>
+      </div>
+
+      <!-- Protected panel -->
+      <div style="background:var(--low-bg);border:1px solid var(--low-bd);border-radius:8px;overflow:hidden">
+        <div style="padding:.6rem 1rem;font-size:12px;font-weight:700;color:var(--low);border-bottom:1px solid var(--low-bd)">
+          🔒 Защищённый сервер
+        </div>
+        <div style="padding:1rem">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:.65rem;line-height:1.55">
+            Игнорирует <code style="font-size:11px">forcedItemId</code> и <code style="font-size:11px">forcedRarity</code>.<br>
+            Дроп определяется сервером по типу ящика.
+          </div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:.75rem;line-height:1.7">
+            🪵 Деревянный → Common / Uncommon<br>
+            🏆 Золотой → Rare / Epic<br>
+            💀 Боссовый → Epic / Legendary
+          </div>
+          <button onclick="openChest('fixed')"
+            style="width:100%;font-size:12px;font-weight:700;padding:7px;background:var(--low-bg);border:1px solid var(--low-bd);color:var(--low);border-radius:5px;cursor:pointer;margin-bottom:.4rem">
+            🔒 Открыть (защищённый)
+          </button>
+          <pre id="chest-result-fixed" style="font-family:var(--mono);font-size:10.5px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:.5rem .65rem;line-height:1.55;color:var(--low);white-space:pre-wrap;min-height:50px"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- FINDINGS -->
+<section id="findings">
+  <p class="stitle">Уязвимости — запросы и исправления</p>
+
+  <!-- TBH-001 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sC"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-001 · <span class="pill pC">Critical</span></div>
+        <div class="ftitle">Max HP принимается без серверной валидации</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Описание</div><div class="ft">Клиент отправляет <code>maxHp</code> в API, сервер сохраняет его без пересчёта из базовых характеристик. Любой игрок через HTTP-прокси может подставить произвольное значение и стать бессмертным.</div></div>
+      <div class="dv"></div>
+      <div class="field"><div class="fl">Запрос клиента → Текущая (уязвимая) обработка</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Вредоносный HTTP запрос</div>
+            <div class="rr-body"><span class="kw">PATCH</span> /v1/user/data <span class="nm">HTTP/1.1</span>
+Host: game.thebackend.io
+Authorization: Bearer eyJ0eXA...
+
+{
+  <span class="st">"maxHp"</span>: <span class="vl">99999999</span>,
+  <span class="st">"currentHp"</span>: <span class="vl">99999999</span>,
+  <span class="st">"level"</span>: <span class="vl">15</span>
+}</div>
+          </div>
+          <div class="rr-panel rr-warn">
+            <div class="rr-head">⚠️ Текущий сервер (принимает)</div>
+            <div class="rr-body"><span class="cm">// Уязвимый обработчик:</span>
+<span class="kw">const</span> data = req.body;
+<span class="kw">await</span> db.users.update(userId, {
+  maxHp:     data.maxHp,     <span class="cm">// ← нет проверки!</span>
+  currentHp: data.currentHp
+});
+<span class="cm">// HTTP 200 OK</span>
+{ <span class="st">"maxHp"</span>: <span class="vl">99999999</span> }  <span class="cm">// ← принято!</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="field"><div class="fl">Правильная обработка — BACKND Cloud Function</div>
+        <div class="cb cb-good">
+          <div class="cb-h"><span>✅ Сервер пересчитывает maxHp из базы данных</span></div>
+          <pre><span class="kw">function</span> <span class="fn">updatePlayerState</span>(userToken, body) {
+  <span class="cm">// Шаг 1: Читаем авторитетные данные — клиенту не доверяем</span>
+  <span class="kw">const</span> stored = Backend.GameInfo.GetV2(userToken, <span class="st">"userStats"</span>);
+
+  <span class="cm">// Шаг 2: Пересчёт maxHp только из хранилища</span>
+  <span class="kw">const</span> maxHp = stored.baseHp
+    + (stored.level * <span class="vl">HP_PER_LEVEL</span>)
+    + <span class="fn">getEquipBonus</span>(userToken, <span class="st">"hp"</span>);  <span class="cm">// из инвентаря</span>
+
+  <span class="cm">// Шаг 3: currentHp от клиента — но не выше maxHp</span>
+  <span class="kw">const</span> currentHp = Math.min(body.currentHp ?? maxHp, maxHp);
+
+  <span class="cm">// Шаг 4: Сохраняем серверные значения</span>
+  Backend.GameInfo.UpdateV2(userToken, <span class="st">"userStats"</span>, { maxHp, currentHp });
+
+  <span class="cm">// HTTP 200: возвращаем вычисленные значения</span>
+  <span class="kw">return</span> { <span class="ok">maxHp</span>: maxHp, <span class="ok">currentHp</span>: currentHp };
+  <span class="cm">// → { "maxHp": 485, "currentHp": 350 }</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-002 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sC"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-002 · <span class="pill pC">Critical</span></div>
+        <div class="ftitle">Alpha/dev эндпоинты зашиты в production-бинарь</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Описание</div><div class="ft">В <code>GameAssembly.dll</code> прямо в строках бинаря присутствуют alpha и beta URL BACKND. Эти окружения менее защищены и могут содержать отладочные эндпоинты.</div></div>
+      <div class="field"><div class="fl">Запрос на alpha окружение</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Запрос на dev-сервер (из бинаря)</div>
+            <div class="rr-body"><span class="kw">POST</span> /v1/debug/giveItems <span class="nm">HTTP/1.1</span>
+Host: <span class="vl">game.notification.alpha.thebackend.io</span>
+Authorization: Bearer &lt;любой токен&gt;
+
+{ <span class="st">"items"</span>: [<span class="st">"all_legendary"</span>] }
+
+<span class="cm">// Alpha может вернуть 200 OK</span>
+<span class="cm">// где prod вернул бы 404</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Исправление: удалить из release</div>
+            <div class="rr-body"><span class="cm">// BackendManager.cs</span>
+<span class="kw">private string</span> <span class="fn">GetEndpoint</span>() {
+#<span class="kw">if</span> DEVELOPMENT_BUILD
+  <span class="kw">return</span> <span class="st">"https://...alpha.thebackend.io"</span>;
+#<span class="kw">else</span>
+  <span class="kw">return</span> <span class="st">"https://game.notification.thebackend.io"</span>;
+#<span class="kw">endif</span>
+}
+<span class="cm">// В Release-сборке alpha-URL НЕ компилируется</span>
+<span class="cm">// в бинарь — строка физически отсутствует</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-003 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sH"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-003 · <span class="pill pH">High</span></div>
+        <div class="ftitle">Upload console доступен по HTTP без TLS</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Запрос / Атака MITM</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Незашифрованный POST</div>
+            <div class="rr-body"><span class="kw">POST</span> http://upload-console.thebackend.io/upload
+Content-Type: application/json
+Authorization: Bearer <span class="vl">&lt;токен в открытом виде&gt;</span>
+
+{ <span class="st">"saveData"</span>: <span class="st">"..."</span> }
+
+<span class="cm"># Атакующий на той же сети видит:</span>
+<span class="cm"># токен, данные, может подменить ответ</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Исправление + проверка при старте</div>
+            <div class="rr-body"><span class="cm">// ❌ Было:</span>
+<span class="kw">const</span> url = <span class="st">"http://upload-console..."</span>;
+
+<span class="cm">// ✅ Стало:</span>
+<span class="kw">const</span> url = <span class="st">"https://upload-console..."</span>;
+
+<span class="cm">// Проверка при старте игры:</span>
+<span class="kw">void</span> <span class="fn">ValidateEndpoints</span>() {
+  <span class="kw">foreach</span>(<span class="kw">var</span> ep <span class="kw">in</span> BackendConfig.All)
+    <span class="kw">if</span>(ep.StartsWith(<span class="st">"http://"</span>))
+      Application.Quit(); <span class="cm">// или assert</span>
+}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-004 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sH"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-004 · <span class="pill pH">High</span></div>
+        <div class="ftitle">Два Google Apps Script эндпоинта без авторизации</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Запрос / Эксплуатация</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Открытый POST — без токена</div>
+            <div class="rr-body"><span class="kw">POST</span> https://script.google.com/macros/s/
+  AKfycbxS4JXVJaDemMCRb.../exec
+
+{ <span class="st">"steamId"</span>: <span class="st">"fake_user"</span>,
+  <span class="st">"score"</span>: <span class="vl">9999999</span>,
+  <span class="st">"event"</span>: <span class="st">"cheat_inject"</span> }
+
+<span class="cm">// HTTP 200: принято без проверки</span>
+<span class="cm">// Таблица загрязнена фейковыми данными</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ HMAC-проверка в Apps Script</div>
+            <div class="rr-body"><span class="kw">function</span> <span class="fn">doPost</span>(e) {
+  <span class="kw">var</span> secret = PropertiesService
+    .getScriptProperties().getProperty(<span class="st">'SECRET'</span>);
+  <span class="kw">var</span> t = e.parameter.t;
+  <span class="kw">var</span> sig = e.parameter.sig;
+  <span class="kw">var</span> expected = <span class="fn">hmacSha256</span>(e.postData.contents+t, secret);
+
+  <span class="kw">if</span> (sig !== expected || Date.now()-t > <span class="vl">60000</span>)
+    <span class="kw">return</span> ContentService.createTextOutput(<span class="st">'403'</span>);
+  <span class="cm">// обработать данные...</span>
+}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-005 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sH"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-005 · <span class="pill pH">High</span></div>
+        <div class="ftitle">ID таблицы вероятности дропа контролируется клиентом</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Описание</div><div class="ft">Клиент передаёт <code>probabilityKey</code> в запросе к BACKND Probability API. Злоумышленник подставляет ключ таблицы с максимальным шансом Legendary-предметов.</div></div>
+      <div class="field"><div class="fl">Запрос / Исправление</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Клиент выбирает таблицу</div>
+            <div class="rr-body"><span class="kw">POST</span> /v1/probability <span class="nm">HTTP/1.1</span>
+Authorization: Bearer &lt;token&gt;
+
+{
+  <span class="st">"probabilityKey"</span>: <span class="vl">"legendary_boss_table"</span>,
+  <span class="cm">// ← заменён с "zone1_common"</span>
+  <span class="st">"context"</span>: <span class="st">"wood_chest"</span>
+}
+
+<span class="cm">// Сервер роллит legendary таблицу</span>
+<span class="cm">// → 100% шанс Legendary предмета</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Сервер сам определяет таблицу</div>
+            <div class="rr-body"><span class="kw">function</span> <span class="fn">openChest</span>(token, chestId, zoneId) {
+  <span class="cm">// Клиент НЕ передаёт probabilityKey</span>
+  <span class="cm">// Сервер маппит из контекста:</span>
+  <span class="kw">const</span> key = CHEST_MAP[zoneId]?.[chestId];
+  <span class="kw">if</span>(!key) <span class="kw">throw</span> <span class="st">"Invalid context"</span>;
+
+  <span class="kw">const</span> drop = Backend.Probability.Roll(key);
+  Backend.Inventory.Insert(token, drop.itemId, <span class="vl">1</span>);
+  <span class="kw">return</span> { itemId: drop.itemId };
+  <span class="cm">// → { "itemId": "WPN_KNT_COM_001" }</span>
+}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-006 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sH"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-006 · <span class="pill pH">High</span></div>
+        <div class="ftitle">AWS API Gateway эндпоинт без контекста авторизации</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Запрос / Исправление</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Прямой вызов Lambda без auth</div>
+            <div class="rr-body"><span class="kw">POST</span> https://50librtl78.execute-api
+  .ap-northeast-2.amazonaws.com/prod/action
+
+{ <span class="st">"action"</span>: <span class="st">"give_reward"</span>,
+  <span class="st">"userId"</span>: <span class="st">"target_victim"</span>,
+  <span class="st">"reward"</span>: <span class="st">"legendary_pack"</span> }
+
+<span class="cm">// Если нет авторизатора — HTTP 200</span>
+<span class="cm">// Любой знающий URL может вызвать</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Lambda Authorizer на шлюзе</div>
+            <div class="rr-body"><span class="cm">// AWS Lambda Authorizer:</span>
+exports.handler = <span class="kw">async</span>(event) => {
+  <span class="kw">const</span> token = event.headers[<span class="st">'Authorization'</span>]
+    ?.replace(<span class="st">'Bearer '</span>, <span class="st">''</span>);
+
+  <span class="kw">const</span> user = <span class="kw">await</span> <span class="fn">verifyBACKNDToken</span>(token);
+  <span class="kw">if</span>(!user) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="st">'Unauthorized'</span>);
+
+  <span class="kw">return</span> { principalId: user.id,
+    policyDocument: { Statement: [
+      { Effect: <span class="st">'Allow'</span>, Action: <span class="st">'execute-api:Invoke'</span> }
+    ]}
+  };
+};</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-007 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sM"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-007 · <span class="pill pM">Medium</span></div>
+        <div class="ftitle">Anti-Cheat Toolkit обходится на уровне API</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Описание</div><div class="ft">ACTk v6.8.0 шифрует значения в памяти (<code>ObscuredInt</code>, <code>ObscuredFloat</code>). Но когда значение передаётся в HTTP-запрос — оно расшифровано. Burp Suite/mitmproxy видит и меняет его.</div></div>
+      <div class="field"><div class="fl">Схема обхода / Исправление</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ ACTk не защищает API трафик</div>
+            <div class="rr-body"><span class="cm">// В памяти (защищено ACTk):</span>
+ObscuredInt maxHp = <span class="vl">485</span>;  <span class="cm">// XOR-обфускация</span>
+
+<span class="cm">// В момент API запроса (расшифровано):</span>
+<span class="kw">var</span> data = { maxHp: maxHp.Value }; <span class="cm">// = 485</span>
+
+<span class="cm">// Burp Suite перехватывает и меняет:</span>
+<span class="cm">// { "maxHp": 99999999 }</span>
+<span class="cm">// ACTk ничего об этом не знает</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ HMAC-подпись + серверная валидация</div>
+            <div class="rr-body"><span class="cm">// Подпись запроса:</span>
+<span class="kw">string</span> <span class="fn">Sign</span>(<span class="kw">string</span> json, <span class="kw">string</span> key) {
+  <span class="kw">var</span> nonce = Guid.NewGuid().ToString(<span class="st">"N"</span>)[..<span class="vl">8</span>];
+  <span class="kw">var</span> ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+  <span class="kw">using var</span> h = <span class="kw">new</span> HMACSHA256(Encoding.UTF8.GetBytes(key));
+  <span class="kw">var</span> sig = Convert.ToBase64String(
+    h.ComputeHash(Encoding.UTF8.GetBytes(json+nonce+ts)));
+  <span class="kw">return</span> <span class="st">$"?nonce={nonce}&ts={ts}&sig={sig}"</span>;
+}
+<span class="cm">// Сервер отклоняет запрос с неверной подписью</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-008 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sM"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-008 · <span class="pill pM">Medium</span></div>
+        <div class="ftitle">InventoryReceivePostItemAllRequest без серверной проверки</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Описание</div><div class="ft">Классы <code>InventoryReceivePostItemAllRequest</code> / <code>InventoryReceivePostItemAllResult</code> найдены в IL2CPP metadata. Клиент постит список предметов напрямую. Сервер принимает их без верификации контекста получения.</div></div>
+      <div class="field"><div class="fl">Запрос / Исправление</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Клиент сам задаёт предметы</div>
+            <div class="rr-body"><span class="kw">POST</span> /v1/inventory/items HTTP/1.1
+Authorization: Bearer &lt;token&gt;
+
+{
+  <span class="st">"items"</span>: [
+    { <span class="st">"itemId"</span>: <span class="st">"WPN_KNT_LEG_001"</span>, <span class="st">"qty"</span>: <span class="vl">99</span> },
+    { <span class="st">"itemId"</span>: <span class="st">"GEM_PACK_500"</span>, <span class="st">"qty"</span>: <span class="vl">99</span> },
+    { <span class="st">"itemId"</span>: <span class="st">"ARM_ALL_LEG_001"</span>, <span class="st">"qty"</span>: <span class="vl">99</span> }
+  ]
+}
+<span class="cm">// HTTP 200 — предметы добавлены!</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Клиент сообщает о событии — сервер решает</div>
+            <div class="rr-body"><span class="cm">// Клиент отправляет только действие:</span>
+<span class="kw">POST</span> /v1/actions/monster-kill
+{ <span class="st">"monsterId"</span>: <span class="st">"boss_01"</span>, <span class="st">"zoneId"</span>: <span class="st">"dungeon_3"</span>,
+  <span class="st">"eventId"</span>: <span class="st">"a3f-8bc-..."</span> }
+
+<span class="cm">// Сервер проверяет бой, роллит дроп:</span>
+<span class="cm">// → { "granted": [{"itemId": "WPN_KNT_COM_002", "qty": 1}] }</span>
+<span class="cm">// Клиент не может выбрать predmet</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="field"><div class="fl">Как должен работать сервер</div>
+        <div class="cb cb-good">
+          <div class="cb-h"><span>✅ Cloud Function — сервер авторитарно выдаёт предметы</span></div>
+          <pre><span class="kw">function</span> <span class="fn">onMonsterKill</span>(token, monsterId, zoneId, eventId) {
+  <span class="cm">// 1. Idempotency: уже обработано?</span>
+  <span class="kw">if</span> (Backend.Cache.Exists(<span class="st">`kill:${eventId}`</span>))
+    <span class="kw">throw</span> <span class="st">"Already processed"</span>;
+
+  <span class="cm">// 2. Проверяем, что монстр был в активном бою игрока</span>
+  <span class="kw">const</span> battle = Backend.GameInfo.GetV2(token, <span class="st">"activeBattle"</span>);
+  <span class="kw">if</span> (!battle?.enemies?.includes(monsterId))
+    <span class="kw">throw</span> <span class="st">"Monster not in player's battle"</span>;
+
+  <span class="cm">// 3. Сервер роллит дроп по таблице монстра</span>
+  <span class="kw">const</span> tableKey = MONSTER_LOOT_MAP[monsterId];
+  <span class="kw">const</span> drops = Backend.Probability.Roll(tableKey);
+
+  <span class="cm">// 4. Сервер напрямую добавляет в инвентарь</span>
+  Backend.Inventory.Insert(token, drops.itemId, drops.qty);
+
+  <span class="cm">// 5. Помечаем событие обработанным (1 час)</span>
+  Backend.Cache.Set(<span class="st">`kill:${eventId}`</span>, <span class="vl">1</span>, ttl: <span class="vl">3600</span>);
+  <span class="kw">return</span> { granted: drops };
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-009 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sM"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-009 · <span class="pill pM">Medium</span></div>
+        <div class="ftitle">Сессионный токен BACKND в открытом реестре Windows</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Обнаруженные данные / Исправление</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Токен читается любым процессом</div>
+            <div class="rr-body"><span class="cm"># Любой процесс пользователя:</span>
+<span class="kw">reg query</span> <span class="st">"HKCU\Software\TesseractStudio\TaskBarHero"</span>
+
+<span class="cm">→ OwsfBQ8qISsHHho6ACAJAiAAKRI2GjIDFh4EIQ0o</span>
+<span class="cm">   = 0x7FFFFF84</span>
+
+<span class="cm"># Используем токен для API запроса:</span>
+<span class="kw">curl</span> -H <span class="st">"Authorization: Bearer &lt;extracted&gt;"</span>
+  https://game.thebackend.io/v1/user/items</div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Windows DPAPI шифрование</div>
+            <div class="rr-body"><span class="cm">// Сохранить (зашифровано DPAPI):</span>
+<span class="kw">var</span> enc = ProtectedData.Protect(
+  Encoding.UTF8.GetBytes(token), <span class="kw">null</span>,
+  DataProtectionScope.CurrentUser);
+File.WriteAllBytes(tokenPath, enc);
+
+<span class="cm">// Прочитать (расшифровать):</span>
+<span class="kw">var</span> raw = File.ReadAllBytes(tokenPath);
+<span class="kw">var</span> token = Encoding.UTF8.GetString(
+  ProtectedData.Unprotect(raw, <span class="kw">null</span>,
+    DataProtectionScope.CurrentUser));
+<span class="cm">// Другой процесс не сможет расшифровать</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-010 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sL"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-010 · <span class="pill pL">Low</span></div>
+        <div class="ftitle">Steam ID в именах ключей PlayerPrefs</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Проблема / Исправление</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Steam ID виден без запуска игры</div>
+            <div class="rr-body"><span class="cm"># Реестр раскрывает Steam ID:</span>
+<span class="kw">reg query</span> <span class="st">"HKCU\Software\TesseractStudio\TaskBarHero"</span>
+
+<span class="cm">→ TermsOfServiceAgreeVersion_</span><span class="vl">76561198793265208</span><span class="cm">_h...</span>
+
+<span class="cm"># Steam ID 76561198793265208 раскрыт</span>
+<span class="cm"># Можно использовать для перебора API</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Хеш Steam ID в ключе</div>
+            <div class="rr-body"><span class="kw">static string</span> <span class="fn">SafeKey</span>(<span class="kw">string</span> steamId, <span class="kw">string</span> name) {
+  <span class="kw">const string</span> SALT = <span class="st">"TBH_2026"</span>;
+  <span class="kw">using var</span> sha = SHA256.Create();
+  <span class="kw">var</span> h = sha.ComputeHash(
+    Encoding.UTF8.GetBytes(steamId + SALT));
+  <span class="kw">var</span> s = BitConverter.ToString(h, <span class="vl">0</span>, <span class="vl">4</span>).Replace(<span class="st">"-"</span>,<span class="st">""</span>);
+  <span class="kw">return</span> <span class="st">$"{name}_{s}"</span>;
+}
+<span class="cm">// → "TermsOfServiceVersion_A3F1C209"</span>
+<span class="cm">// Steam ID не раскрыт</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-012 -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sH"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-012 · <span class="pill pH">High</span></div>
+        <div class="ftitle">Характеристики снаряжения подменяются клиентом (Equipment Stat Injection)</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Описание</div><div class="ft">Когда игрок надевает предмет, клиент отправляет не только <code>itemId</code>, но и характеристики: <code>atk</code>, <code>def</code>, <code>hp</code>. Если сервер использует эти значения напрямую для боевых расчётов — вместо того чтобы смотреть реальные статы предмета в собственной БД — атакующий меняет <code>"atk": 12</code> на <code>"atk": 99999</code> и мгновенно получает урон в 99k+. Это не атака на сервер — это атака на то, чему сервер <em>доверяет</em>.</div></div>
+      <div class="field"><div class="fl">Атака — снаряжение Iron Sword</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Клиент подставляет статы снаряжения</div>
+            <div class="rr-body"><span class="kw">POST</span> /v1/equip HTTP/1.1
+Authorization: Bearer &lt;token&gt;
+
+{
+  <span class="st">"slot"</span>: <span class="st">"weapon"</span>,
+  <span class="st">"itemId"</span>: <span class="st">"WPN_KNT_COM_001"</span>,
+  <span class="cm">// Реальные статы: atk:12, def:0, hp:0</span>
+  <span class="st">"stats"</span>: {
+    <span class="st">"atk"</span>: <span class="vl">99999</span>,   <span class="cm">// ← подменено!</span>
+    <span class="st">"def"</span>: <span class="vl">9999</span>,
+    <span class="st">"hp"</span>:  <span class="vl">99999</span>
+  }
+}
+<span class="cm">// Сервер сохраняет "atk": 99999</span>
+<span class="cm">// Урон в бою = 99999</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Сервер смотрит БД, игнорирует stats</div>
+            <div class="rr-body"><span class="kw">function</span> <span class="fn">equipItem</span>(token, slot, itemId) {
+  <span class="cm">// Принимаем только itemId и slot</span>
+  <span class="cm">// stats от клиента — ИГНОРИРУЮТСЯ</span>
+
+  <span class="cm">// Сервер смотрит СВОЮ БД предметов:</span>
+  <span class="kw">const</span> def = ITEM_DB[itemId];
+  <span class="kw">if</span>(!def) <span class="kw">throw</span> <span class="st">"Unknown item"</span>;
+
+  <span class="cm">// Сохраняем серверные статы:</span>
+  Backend.GameInfo.UpdateV2(token, <span class="st">"equip"</span>, {
+    [slot]: { itemId,
+      atk: def.atk,   <span class="cm">// = 12 из БД</span>
+      def: def.def,   <span class="cm">// = 0</span>
+      hp:  def.hp     <span class="cm">// = 0</span>
+    }
+  });
+  <span class="kw">return</span> { slot, itemId, stats: def };
+}</div>
+          </div>
+        </div>
+      </div>
+      <div class="field"><div class="fl">Авторитетная база данных предметов на сервере (фрагмент)</div>
+        <div class="cb cb-good">
+          <div class="cb-h"><span>✅ ITEM_DB — единственный источник статов</span></div>
+          <pre><span class="cm">// Cloud Function / BACKND Chart Table</span>
+<span class="kw">const</span> ITEM_DB = {
+  <span class="st">"WPN_KNT_COM_001"</span>: { atk: <span class="vl">12</span>,  def: <span class="vl">0</span>,  hp: <span class="vl">0</span>,   slot: <span class="st">"weapon"</span>, allowedClass: <span class="st">"Knight"</span> },
+  <span class="st">"WPN_KNT_RAR_001"</span>: { atk: <span class="vl">45</span>,  def: <span class="vl">0</span>,  hp: <span class="vl">0</span>,   slot: <span class="st">"weapon"</span>, allowedClass: <span class="st">"Knight"</span> },
+  <span class="st">"WPN_KNT_LEG_001"</span>: { atk: <span class="vl">160</span>, def: <span class="vl">40</span>, hp: <span class="vl">0</span>,   slot: <span class="st">"weapon"</span>, allowedClass: <span class="st">"Knight"</span> },
+  <span class="st">"ARM_KNT_RAR_001"</span>: { atk: <span class="vl">0</span>,   def: <span class="vl">55</span>, hp: <span class="vl">200</span>, slot: <span class="st">"armor"</span>,  allowedClass: <span class="st">"Knight"</span> },
+  <span class="st">"WPN_WIZ_LEG_001"</span>: { atk: <span class="vl">130</span>, def: <span class="vl">0</span>,  hp: <span class="vl">0</span>,   slot: <span class="st">"weapon"</span>, allowedClass: <span class="st">"Wizard"</span> },
+  <span class="cm">// ... все предметы</span>
+};
+
+<span class="cm">// Дополнительные проверки при экипировке:</span>
+<span class="kw">function</span> <span class="fn">validateEquip</span>(token, slot, itemId) {
+  <span class="kw">const</span> def = ITEM_DB[itemId];
+  <span class="kw">if</span>(!def) <span class="kw">throw</span> <span class="st">"Unknown item"</span>;
+  <span class="kw">if</span>(def.slot !== slot) <span class="kw">throw</span> <span class="st">"Wrong slot"</span>;
+
+  <span class="kw">const</span> player = Backend.GameInfo.GetV2(token, <span class="st">"player"</span>);
+  <span class="kw">if</span>(def.allowedClass !== player.class)
+    <span class="kw">throw</span> <span class="st">"Wrong class"</span>; <span class="cm">// рыцарь не носит посох</span>
+
+  <span class="kw">const</span> inv = Backend.Inventory.Get(token);
+  <span class="kw">if</span>(!inv.items[itemId])
+    <span class="kw">throw</span> <span class="st">"Item not in inventory"</span>; <span class="cm">// дюп-защита</span>
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TBH-011 FIXED -->
+  <div class="finding">
+    <div class="fh">
+      <div class="fstripe sI"></div>
+      <div style="flex:1">
+        <div class="fid">TBH-011 · <span class="pill pI">Info</span> · <span class="pill pF">Исправлено</span></div>
+        <div class="ftitle">Дублирование предметов — применено исправление</div>
+      </div>
+    </div>
+    <div class="fb">
+      <div class="field"><div class="fl">Было / Стало</div>
+        <div class="rr">
+          <div class="rr-panel rr-bad">
+            <div class="rr-head">❌ Повторный запрос давал предметы</div>
+            <div class="rr-body"><span class="kw">POST</span> /v1/loot/collect
+{ <span class="st">"chestId"</span>: <span class="st">"chest_001"</span> }
+<span class="cm">→ HTTP 200: +1 меч</span>
+
+<span class="cm"># Повтор того же запроса:</span>
+<span class="kw">POST</span> /v1/loot/collect
+{ <span class="st">"chestId"</span>: <span class="st">"chest_001"</span> }
+<span class="cm">→ HTTP 200: +1 меч  ← дублирование!</span></div>
+          </div>
+          <div class="rr-panel rr-good">
+            <div class="rr-head">✅ Idempotency key (исправлено)</div>
+            <div class="rr-body"><span class="kw">POST</span> /v1/loot/collect
+{ <span class="st">"chestId"</span>: <span class="st">"chest_001"</span>,
+  <span class="st">"eventId"</span>: <span class="st">"a3f2-bc91-..."</span> }  <span class="cm">// уникален</span>
+<span class="cm">→ HTTP 200: +1 меч</span>
+
+<span class="cm"># Повтор с тем же eventId:</span>
+{ <span class="st">"eventId"</span>: <span class="st">"a3f2-bc91-..."</span> }
+<span class="cm">→ HTTP 409: "Already processed"</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- INVENTORY TABLE -->
+<section id="inventory">
+  <p class="stitle">Таблица предметов — InventoryReceivePostItemAllRequest</p>
+  <p style="font-size:13px;color:var(--text2);margin-bottom:1rem">Все <code>itemId</code>, которые сервер должен валидировать. При получении <code>InventoryReceivePostItemAllRequest</code> — проверить каждый ID против этого списка. Любой неизвестный ID — отклонить (HTTP 422).</p>
+  <div class="filter-row">
+    <span class="filter-label">Класс:</span>
+    <button class="filter-btn active" onclick="filterItems('all',this)">Все</button>
+    <button class="filter-btn" onclick="filterItems('Knight',this)">Knight</button>
+    <button class="filter-btn" onclick="filterItems('Wizard',this)">Wizard</button>
+    <button class="filter-btn" onclick="filterItems('Archer',this)">Archer</button>
+    <button class="filter-btn" onclick="filterItems('Slayer',this)">Slayer</button>
+    <button class="filter-btn" onclick="filterItems('Hunter',this)">Hunter</button>
+    <button class="filter-btn" onclick="filterItems('Priest',this)">Priest</button>
+    <button class="filter-btn" onclick="filterItems('All',this)">Общие</button>
+  </div>
+  <div style="overflow-x:auto">
+  <table class="item-tbl" id="item-table">
+    <thead><tr>
+      <th style="width:44px">Иконка</th>
+      <th style="width:160px">Item ID</th>
+      <th>Название</th>
+      <th style="width:65px">Класс</th>
+      <th style="width:55px">Тип</th>
+      <th style="width:70px">Редкость</th>
+      <th style="width:130px">Характеристики</th>
+      <th>Источник</th>
+      <th>Описание</th>
+    </tr></thead>
+    <tbody id="item-body"></tbody>
+  </table>
+  </div>
+  <p style="font-size:11px;color:var(--text3);margin-top:.75rem">
+    Редкость: <span class="rC">■ Common</span> &nbsp;<span class="rR">■ Rare</span> &nbsp;<span class="rE">■ Epic</span> &nbsp;<span class="rL">■ Legendary</span> &nbsp;|&nbsp;
+    Тип: <span class="tW">■ Weapon</span> &nbsp;<span class="tA">■ Armor</span> &nbsp;<span class="tAc">■ Accessory</span> &nbsp;<span class="tCo">■ Consumable</span>
+  </p>
+</section>
+
+<!-- PRIORITY -->
+<section id="priority">
+  <p class="stitle">Приоритеты исправлений</p>
+  <table class="pri-tbl">
+    <tbody>
+      <tr><td>Спринт 1<br><span style="color:var(--crit);font-size:11px">Critical</span></td><td><strong>TBH-001</strong> — убрать maxHp из клиентских запросов, добавить Cloud Function<br><strong>TBH-002</strong> — условная компиляция, alpha URL только в DEVELOPMENT_BUILD<br><strong>TBH-003</strong> — заменить HTTP→HTTPS, добавить проверку при старте</td></tr>
+      <tr><td>Спринт 2<br><span style="color:var(--high);font-size:11px">High</span></td><td><strong>TBH-004</strong> — HMAC-подпись Google Apps Script<br><strong>TBH-005</strong> — probability table выбирается сервером по контексту<br><strong>TBH-006</strong> — Lambda Authorizer на AWS API Gateway<br><strong>TBH-008</strong> — убрать InventoryReceivePostItemAllRequest, заменить на action-based API<br><strong>TBH-012</strong> — серверная ITEM_DB как единственный источник статов снаряжения; stats от клиента — игнорировать</td></tr>
+      <tr><td>До релиза<br><span style="color:var(--med);font-size:11px">Medium/Low</span></td><td><strong>TBH-007</strong> — HMAC-подпись всех API запросов + certificate pinning<br><strong>TBH-009</strong> — перенести токен с PlayerPrefs на Windows DPAPI<br><strong>TBH-010</strong> — SHA256-хеш Steam ID в именах ключей</td></tr>
+    </tbody>
+  </table>
+  <p class="footnote" style="margin-top:1rem">Анализ: статика GameAssembly.dll + global-metadata.dat + реестр Windows + сетевой мониторинг запущенного клиента. Серверное тестирование (TBH-005, TBH-006, TBH-008) требует подтверждения на staging.</p>
+</section>
+
+</div>
+
+<script>
+// ─── ITEM DATABASE (server-authoritative stats) ───────────────────────────────
+const ITEM_DB = {
+  // KNIGHT weapons
+  'WPN_KNT_COM_001': {name:'Iron Sword',       cls:'Knight', slot:'weapon',    atk:12,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_COM_002': {name:'Steel Sword',       cls:'Knight', slot:'weapon',    atk:22,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_UNC_001': {name:'Tempered Blade',    cls:'Knight', slot:'weapon',    atk:32,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_RAR_001': {name:'Silver Blade',      cls:'Knight', slot:'weapon',    atk:45,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_RAR_002': {name:'Holy Sword',        cls:'Knight', slot:'weapon',    atk:55,  def:5,   hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_EPC_001': {name:'Aegis Edge',        cls:'Knight', slot:'weapon',    atk:88,  def:15,  hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_EPC_002': {name:'Paladin Blade',     cls:'Knight', slot:'weapon',    atk:100, def:25,  hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_LEG_001': {name:'Excalibur Shard',   cls:'Knight', slot:'weapon',    atk:160, def:40,  hp:0,    mgk:0,   spd:0  },
+  'WPN_KNT_LEG_002': {name:"Paladin's Oath",    cls:'Knight', slot:'weapon',    atk:175, def:50,  hp:0,    mgk:0,   spd:0  },
+  // KNIGHT armor
+  'ARM_KNT_COM_001': {name:'Leather Vest',      cls:'Knight', slot:'armor',     atk:0,   def:20,  hp:0,    mgk:0,   spd:0  },
+  'ARM_KNT_COM_002': {name:'Chain Mail',        cls:'Knight', slot:'armor',     atk:0,   def:35,  hp:0,    mgk:0,   spd:0  },
+  'ARM_KNT_RAR_001': {name:'Knight Plate',      cls:'Knight', slot:'armor',     atk:0,   def:55,  hp:200,  mgk:0,   spd:0  },
+  'ARM_KNT_EPC_001': {name:'Fortress Armor',    cls:'Knight', slot:'armor',     atk:0,   def:110, hp:500,  mgk:0,   spd:0  },
+  'ARM_KNT_LEG_001': {name:'Divine Aegis',      cls:'Knight', slot:'armor',     atk:0,   def:200, hp:1000, mgk:0,   spd:0  },
+  // KNIGHT accessories
+  'ACC_KNT_COM_001': {name:'Iron Buckler',      cls:'Knight', slot:'accessory', atk:0,   def:10,  hp:0,    mgk:0,   spd:0  },
+  'ACC_KNT_RAR_001': {name:'Steel Shield',      cls:'Knight', slot:'accessory', atk:0,   def:40,  hp:100,  mgk:0,   spd:0  },
+  'ACC_KNT_EPC_001': {name:'Shield of Faith',   cls:'Knight', slot:'accessory', atk:0,   def:80,  hp:300,  mgk:0,   spd:0  },
+  // WIZARD weapons
+  'WPN_WIZ_COM_001': {name:'Oak Staff',         cls:'Wizard', slot:'weapon',    atk:10,  def:0,   hp:0,    mgk:5,   spd:0  },
+  'WPN_WIZ_COM_002': {name:'Apprentice Wand',   cls:'Wizard', slot:'weapon',    atk:15,  def:0,   hp:0,    mgk:10,  spd:0  },
+  'WPN_WIZ_RAR_001': {name:'Crystal Wand',      cls:'Wizard', slot:'weapon',    atk:35,  def:0,   hp:0,    mgk:30,  spd:0  },
+  'WPN_WIZ_RAR_002': {name:'Moon Staff',        cls:'Wizard', slot:'weapon',    atk:45,  def:0,   hp:0,    mgk:40,  spd:0  },
+  'WPN_WIZ_EPC_001': {name:'Arcane Tome',       cls:'Wizard', slot:'weapon',    atk:70,  def:0,   hp:0,    mgk:80,  spd:0  },
+  'WPN_WIZ_EPC_002': {name:'Mana Prism',        cls:'Wizard', slot:'weapon',    atk:85,  def:0,   hp:0,    mgk:100, spd:0  },
+  'WPN_WIZ_LEG_001': {name:'Staff of Eternity', cls:'Wizard', slot:'weapon',    atk:130, def:0,   hp:0,    mgk:200, spd:0  },
+  'WPN_WIZ_LEG_002': {name:'Void Scepter',      cls:'Wizard', slot:'weapon',    atk:150, def:0,   hp:0,    mgk:250, spd:0  },
+  // WIZARD armor
+  'ARM_WIZ_COM_001': {name:'Apprentice Robe',   cls:'Wizard', slot:'armor',     atk:0,   def:10,  hp:0,    mgk:0,   spd:0  },
+  'ARM_WIZ_RAR_001': {name:'Mage Cloak',        cls:'Wizard', slot:'armor',     atk:0,   def:25,  hp:0,    mgk:0,   spd:0  },
+  'ARM_WIZ_EPC_001': {name:'Arcane Vestment',   cls:'Wizard', slot:'armor',     atk:0,   def:55,  hp:0,    mgk:0,   spd:0  },
+  'ARM_WIZ_LEG_001': {name:'Ether Mantle',      cls:'Wizard', slot:'armor',     atk:0,   def:100, hp:0,    mgk:0,   spd:0  },
+  // ARCHER weapons
+  'WPN_ARC_COM_001': {name:'Wood Bow',          cls:'Archer', slot:'weapon',    atk:14,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_ARC_COM_002': {name:'Composite Bow',     cls:'Archer', slot:'weapon',    atk:24,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_ARC_RAR_001': {name:'Elven Bow',         cls:'Archer', slot:'weapon',    atk:48,  def:0,   hp:0,    mgk:0,   spd:10 },
+  'WPN_ARC_RAR_002': {name:'War Bow',           cls:'Archer', slot:'weapon',    atk:60,  def:0,   hp:0,    mgk:0,   spd:15 },
+  'WPN_ARC_EPC_001': {name:'Shadow Crossbow',   cls:'Archer', slot:'weapon',    atk:90,  def:0,   hp:0,    mgk:0,   spd:25 },
+  'WPN_ARC_EPC_002': {name:'Sniper Bow',        cls:'Archer', slot:'weapon',    atk:105, def:0,   hp:0,    mgk:0,   spd:35 },
+  'WPN_ARC_LEG_001': {name:'Heartseeker',       cls:'Archer', slot:'weapon',    atk:155, def:0,   hp:0,    mgk:0,   spd:60 },
+  'WPN_ARC_LEG_002': {name:'Phantom Arrow',     cls:'Archer', slot:'weapon',    atk:170, def:0,   hp:0,    mgk:0,   spd:75 },
+  // ARCHER armor
+  'ARM_ARC_COM_001': {name:'Leather Tunic',     cls:'Archer', slot:'armor',     atk:0,   def:15,  hp:0,    mgk:0,   spd:5  },
+  'ARM_ARC_RAR_001': {name:"Hunter's Vest",     cls:'Archer', slot:'armor',     atk:0,   def:35,  hp:0,    mgk:0,   spd:20 },
+  'ARM_ARC_EPC_001': {name:'Shadow Garb',       cls:'Archer', slot:'armor',     atk:0,   def:65,  hp:0,    mgk:0,   spd:45 },
+  'ARM_ARC_LEG_001': {name:'Phantom Mantle',    cls:'Archer', slot:'armor',     atk:0,   def:120, hp:0,    mgk:0,   spd:90 },
+  // SLAYER weapons
+  'WPN_SLY_COM_001': {name:'Iron Axe',          cls:'Slayer', slot:'weapon',    atk:18,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_SLY_COM_002': {name:'Battle Axe',        cls:'Slayer', slot:'weapon',    atk:28,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_SLY_RAR_001': {name:'War Cleaver',       cls:'Slayer', slot:'weapon',    atk:52,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_SLY_EPC_001': {name:'Demolisher',        cls:'Slayer', slot:'weapon',    atk:95,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_SLY_EPC_002': {name:'Skewer Shot',       cls:'Slayer', slot:'weapon',    atk:108, def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_SLY_LEG_001': {name:'Ragnarok Axe',      cls:'Slayer', slot:'weapon',    atk:180, def:0,   hp:0,    mgk:0,   spd:0  },
+  // SLAYER armor
+  'ARM_SLY_RAR_001': {name:'Berserker Mail',    cls:'Slayer', slot:'armor',     atk:0,   def:40,  hp:0,    mgk:0,   spd:0  },
+  'ARM_SLY_EPC_001': {name:'Warlord Plate',     cls:'Slayer', slot:'armor',     atk:0,   def:90,  hp:0,    mgk:0,   spd:0  },
+  'ARM_SLY_LEG_001': {name:'Doom Mantle',       cls:'Slayer', slot:'armor',     atk:0,   def:170, hp:0,    mgk:0,   spd:0  },
+  // HUNTER weapons
+  'WPN_HNT_COM_001': {name:'Hunter Knife',      cls:'Hunter', slot:'weapon',    atk:11,  def:0,   hp:0,    mgk:0,   spd:8  },
+  'WPN_HNT_COM_002': {name:'Twin Daggers',      cls:'Hunter', slot:'weapon',    atk:18,  def:0,   hp:0,    mgk:0,   spd:12 },
+  'WPN_HNT_RAR_001': {name:'Venomfang',         cls:'Hunter', slot:'weapon',    atk:42,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_HNT_EPC_001': {name:'Shadow Blade',      cls:'Hunter', slot:'weapon',    atk:80,  def:0,   hp:0,    mgk:0,   spd:30 },
+  'WPN_HNT_EPC_002': {name:'Frost Bolt',        cls:'Hunter', slot:'weapon',    atk:75,  def:0,   hp:0,    mgk:0,   spd:0  },
+  'WPN_HNT_LEG_001': {name:'Phantom Blade',     cls:'Hunter', slot:'weapon',    atk:148, def:0,   hp:0,    mgk:0,   spd:50 },
+  // HUNTER armor
+  'ARM_HNT_RAR_001': {name:'Scout Garb',        cls:'Hunter', slot:'armor',     atk:0,   def:30,  hp:0,    mgk:0,   spd:25 },
+  'ARM_HNT_EPC_001': {name:"Assassin's Cloak",  cls:'Hunter', slot:'armor',     atk:0,   def:60,  hp:0,    mgk:0,   spd:55 },
+  'ARM_HNT_LEG_001': {name:'Ghost Veil',        cls:'Hunter', slot:'armor',     atk:0,   def:115, hp:0,    mgk:0,   spd:100},
+  // PRIEST weapons
+  'WPN_PRS_COM_001': {name:'Holy Rod',          cls:'Priest', slot:'weapon',    atk:8,   def:0,   hp:0,    mgk:15,  spd:0  },
+  'WPN_PRS_COM_002': {name:'Healing Staff',     cls:'Priest', slot:'weapon',    atk:12,  def:0,   hp:0,    mgk:25,  spd:0  },
+  'WPN_PRS_RAR_001': {name:'Blessed Scepter',   cls:'Priest', slot:'weapon',    atk:35,  def:0,   hp:0,    mgk:60,  spd:0  },
+  'WPN_PRS_EPC_001': {name:'Divine Scepter',    cls:'Priest', slot:'weapon',    atk:60,  def:0,   hp:0,    mgk:90,  spd:0  },
+  'WPN_PRS_EPC_002': {name:"Prophet's Tome",    cls:'Priest', slot:'weapon',    atk:75,  def:0,   hp:0,    mgk:110, spd:0  },
+  'WPN_PRS_LEG_001': {name:"Angel's Grace",     cls:'Priest', slot:'weapon',    atk:110, def:0,   hp:0,    mgk:200, spd:0  },
+  // PRIEST armor
+  'ARM_PRS_COM_001': {name:'Acolyte Robe',      cls:'Priest', slot:'armor',     atk:0,   def:12,  hp:0,    mgk:0,   spd:0  },
+  'ARM_PRS_RAR_001': {name:'Cleric Mantle',     cls:'Priest', slot:'armor',     atk:0,   def:30,  hp:0,    mgk:0,   spd:0  },
+  'ARM_PRS_EPC_001': {name:"Bishop's Vestment", cls:'Priest', slot:'armor',     atk:0,   def:65,  hp:0,    mgk:0,   spd:0  },
+  'ARM_PRS_LEG_001': {name:'Holy Shroud',       cls:'Priest', slot:'armor',     atk:0,   def:125, hp:0,    mgk:0,   spd:0  },
+  // Shared accessories
+  'ACC_ALL_COM_001': {name:'Copper Ring',        cls:'All',    slot:'accessory', atk:5,   def:0,   hp:0,    mgk:0,   spd:0  },
+  'ACC_ALL_COM_002': {name:'Silver Pendant',     cls:'All',    slot:'accessory', atk:0,   def:5,   hp:0,    mgk:0,   spd:0  },
+  'ACC_ALL_RAR_001': {name:'Ring of Vitality',   cls:'All',    slot:'accessory', atk:0,   def:0,   hp:100,  mgk:0,   spd:0  },
+  'ACC_ALL_RAR_002': {name:'Mage Seal',          cls:'All',    slot:'accessory', atk:0,   def:0,   hp:0,    mgk:10,  spd:0  },
+  'ACC_ALL_RAR_003': {name:'Speed Ring',         cls:'All',    slot:'accessory', atk:0,   def:0,   hp:0,    mgk:0,   spd:15 },
+  'ACC_ALL_EPC_001': {name:'Amulet of Power',    cls:'All',    slot:'accessory', atk:30,  def:50,  hp:0,    mgk:0,   spd:0  },
+  'ACC_ALL_EPC_002': {name:'Dragon Pendant',     cls:'All',    slot:'accessory', atk:50,  def:0,   hp:200,  mgk:0,   spd:0  },
+  'ACC_ALL_LEG_001': {name:'Orb of Eternity',    cls:'All',    slot:'accessory', atk:80,  def:100, hp:500,  mgk:0,   spd:0  },
+};
+
+// ─── SCENARIO DEFINITIONS ─────────────────────────────────────────────────────
+const SCENARIOS = {
+
+  equip: {
+    label: 'TBH-012 — Equipment Stat Injection',
+    vuln: true,
+    vulnPath: '/api/vuln/equip',
+    fixedPath: '/api/fixed/equip',
+    method: 'POST',
+    buildBody(p) { return { slot:p.slot, itemId:p.itemId, stats:{atk:+p.atk,def:+p.def,hp:+p.hp,mgk:+p.mgk} }; },
+    params: [
+      {id:'slot',    label:'Слот',    type:'select', opts:['weapon','armor','accessory'], default:'weapon'},
+      {id:'itemId',  label:'Предмет', type:'item',   default:'WPN_KNT_COM_001'},
+      {id:'atk',     label:'ATK (реальный: ?)', type:'number', default:12,   min:0, max:99999},
+      {id:'def',     label:'DEF (реальный: ?)', type:'number', default:0,    min:0, max:99999},
+      {id:'hp',      label:'HP  (реальный: ?)', type:'number', default:0,    min:0, max:99999},
+      {id:'mgk',     label:'MGK (реальный: ?)', type:'number', default:0,    min:0, max:99999},
+    ],
+    buildReq(p) {
+      return `POST /v1/equip HTTP/1.1\nHost: game.thebackend.io\nAuthorization: Bearer eyJ0eXAiOiJKV1Q...\nContent-Type: application/json\n\n${JSON.stringify({slot:p.slot,itemId:p.itemId,stats:{atk:+p.atk,def:+p.def,hp:+p.hp,mgk:+p.mgk}},null,2)}`;
+    },
+    vulnResp(p) {
+      const real = ITEM_DB[p.itemId] || {};
+      return `// ⚠ УЯЗВИМЫЙ СЕРВЕР:\n\nasync function equip(token, body) {\n  // Берёт stats от клиента как есть:\n  await db.equip.set(userId, body.slot, {\n    itemId: body.itemId,\n    atk: body.stats.atk,  // ← ${p.atk} (реально: ${real.atk||0})\n    def: body.stats.def,  // ← ${p.def} (реально: ${real.def||0})\n    hp:  body.stats.hp    // ← ${p.hp} (реально: ${real.hp||0})\n  });\n}\n\n// HTTP 200\n// Игрок теперь наносит ${p.atk} урона вместо ${real.atk||0}`;
+    },
+    fixResp(p) {
+      const real = ITEM_DB[p.itemId] || {atk:0,def:0,hp:0,mgk:0};
+      return `// ✅ ЗАЩИЩЁННЫЙ СЕРВЕР:\n\nfunction equip(token, slot, itemId) {\n  // stats от клиента — ИГНОРИРУЮТСЯ\n  const def = ITEM_DB[itemId];\n  if(!def) throw "Unknown item (422)";\n  if(def.slot !== slot) throw "Wrong slot (422)";\n  if(!hasInInventory(token, itemId))\n    throw "Not in inventory (403)";\n\n  // Записываем ТОЛЬКО серверные статы:\n  GameInfo.UpdateV2(token, "equip", {\n    [slot]: {\n      itemId,\n      atk: ${real.atk},   // из ITEM_DB\n      def: ${real.def},\n      hp:  ${real.hp}\n    }\n  });\n  return { ok:true, stats:ITEM_DB[itemId] };\n}`;
+    },
+    steps(p) {
+      const real = ITEM_DB[p.itemId] || {atk:0,def:0,hp:0};
+      return [
+        `[1/5] POST /v1/equip  slot=${p.slot}  item=${p.itemId}`,
+        `[2/5] Клиент прислал: atk=${p.atk} def=${p.def} hp=${p.hp}`,
+        `[3/5] ITEM_DB[${p.itemId}] → atk=${real.atk} def=${real.def} hp=${real.hp}`,
+        `[4/5] stats клиента ИГНОРИРУЮТСЯ`,
+        +p.atk !== real.atk
+          ? `[5/5] ✗ АТАКА ОБНАРУЖЕНА: клиент подставил atk=${p.atk} (реальный ${real.atk})`
+          : `[5/5] ✓ Значения совпадают — запрос принят`,
+      ];
+    },
+    isAttack(p) { const r=ITEM_DB[p.itemId]||{}; return +p.atk!==r.atk||+p.def!==r.def||+p.hp!==r.hp; }
+  },
+
+  maxhp: {
+    label: 'TBH-001 — Max HP Manipulation',
+    vuln: true,
+    vulnPath: '/api/vuln/user/data',
+    fixedPath: '/api/fixed/user/data',
+    method: 'PATCH',
+    buildBody(p) { return { maxHp:+p.maxHp, currentHp:+p.currentHp, level:+p.level }; },
+    params: [
+      {id:'maxHp',    label:'maxHp (отправить)', type:'number', default:99999999, min:1, max:99999999},
+      {id:'currentHp',label:'currentHp',         type:'number', default:99999999, min:0, max:99999999},
+      {id:'level',    label:'Level (реальный)',   type:'number', default:15,       min:1, max:100},
+    ],
+    buildReq(p){return `PATCH /v1/user/data HTTP/1.1\nHost: game.thebackend.io\nAuthorization: Bearer eyJ0eXAiOiJKV1Q...\n\n${JSON.stringify({maxHp:+p.maxHp,currentHp:+p.currentHp,level:+p.level},null,2)}`;},
+    vulnResp(p){return `// ⚠ УЯЗВИМЫЙ СЕРВЕР:\n\nawait db.users.update(userId, {\n  maxHp:     ${p.maxHp},  // ← принято!\n  currentHp: ${p.currentHp}\n});\n// HTTP 200 — игрок бессмертен`;},
+    fixResp(p){const base=300,hpPL=12,eq=5,real=base+(+p.level*hpPL)+eq;return `// ✅ ЗАЩИЩЁННЫЙ СЕРВЕР:\n\nconst s = GameInfo.GetV2(token, "userStats");\nconst maxHp = s.baseHp + (s.level * HP_PER_LEVEL)\n            + getEquipBonus(token, "hp");\n//   = 300 + (${p.level}×12) + 5 = ${real}\n\nconst currentHp = Math.min(${p.currentHp}, maxHp);\n// = Math.min(${p.currentHp}, ${real}) = ${Math.min(+p.currentHp,real)}\n\n// HTTP 200 → { maxHp: ${real} }`;},
+    steps(p){const r=300+(+p.level*12)+5;return [`[1/4] Получен maxHp=${p.maxHp} от клиента`,`[2/4] maxHp клиента → ИГНОРИРУЕТСЯ`,`[3/4] Чтение БД: baseHp=300, level=${p.level}, equip=+5`,`[4/4] Вычислено: 300+(${p.level}×12)+5 = ${r}`];},
+    isAttack(p){return +p.maxHp>500;}
+  },
+
+  inventory: {
+    label: 'TBH-008 — Inventory Item Injection',
+    vuln: true,
+    vulnPath: '/api/vuln/inventory',
+    fixedPath: '/api/fixed/inventory',
+    method: 'POST',
+    buildBody(p) { return { items:[{itemId:p.item1,qty:+p.qty1},{itemId:p.item2,qty:+p.qty2},{itemId:p.item3,qty:+p.qty3}] }; },
+    params: [
+      {id:'item1', label:'Предмет 1', type:'item', default:'WPN_KNT_LEG_001'},
+      {id:'qty1',  label:'Кол-во 1', type:'number', default:99, min:1, max:9999},
+      {id:'item2', label:'Предмет 2', type:'item', default:'GEM_PACK_500'},
+      {id:'qty2',  label:'Кол-во 2', type:'number', default:99, min:1, max:9999},
+      {id:'item3', label:'Предмет 3', type:'item', default:'ACC_ALL_LEG_001'},
+      {id:'qty3',  label:'Кол-во 3', type:'number', default:99, min:1, max:9999},
+    ],
+    buildReq(p){return `POST /v1/inventory/items HTTP/1.1\nHost: game.thebackend.io\nAuthorization: Bearer eyJ0eXAiOiJKV1Q...\n\n${JSON.stringify({items:[{itemId:p.item1,qty:+p.qty1},{itemId:p.item2,qty:+p.qty2},{itemId:p.item3,qty:+p.qty3}]},null,2)}`;},
+    vulnResp(p){const t=(+p.qty1)+(+p.qty2)+(+p.qty3);return `// ⚠ УЯЗВИМЫЙ СЕРВЕР:\n\nfor (const item of body.items) {\n  await inventory.add(\n    token, item.itemId, item.qty  // ← без проверки\n  );\n}\n// HTTP 200: добавлено ${t} предметов\n// Все — без контекста получения!`;},
+    fixResp(p){return `// ✅ ЗАЩИЩЁННЫЙ СЕРВЕР:\n// Клиент НЕ может напрямую добавлять предметы\n// Только через игровые события:\n\nPOST /v1/actions/monster-kill\n{ monsterId: "boss_01", zoneId: "dungeon_3",\n  eventId: "unique-uuid" }\n\n// Сервер:\n// 1. Проверяет бой\n// 2. Роллит дроп по таблице монстра\n// 3. Сам добавляет в инвентарь\n// → { granted: [{ itemId, qty }] }`;},
+    steps(p){return [`[1/4] POST /v1/inventory/items — ${(+p.qty1)+(+p.qty2)+(+p.qty3)} предметов`,`[2/4] Эндпоинт прямого добавления — ЗАБЛОКИРОВАН (403)`,`[3/4] Требуется: POST /v1/actions/monster-kill`,`[4/4] Сервер роллит дроп и выдаёт предметы сам`];},
+    isAttack(){return true;}
+  },
+
+  probability: {
+    label: 'TBH-005 — Probability Table Swap',
+    vuln: true,
+    vulnPath: '/api/vuln/probability',
+    fixedPath: '/api/fixed/probability',
+    method: 'POST',
+    buildBody(p) { return { probabilityKey:p.probabilityKey, context:p.chestId, zoneId:p.zoneId }; },
+    params: [
+      {id:'zoneId',         label:'Zone',            type:'select', opts:['zone_1','zone_2','zone_3','boss'], default:'zone_1'},
+      {id:'chestId',        label:'Chest',           type:'select', opts:['wood_chest','gold_chest','reward'], default:'wood_chest'},
+      {id:'probabilityKey', label:'probabilityKey (подменить)', type:'text', default:'legendary_boss_table'},
+    ],
+    buildReq(p){return `POST /v1/probability HTTP/1.1\nHost: game.thebackend.io\nAuthorization: Bearer eyJ0eXAiOiJKV1Q...\n\n${JSON.stringify({probabilityKey:p.probabilityKey,context:p.chestId,zoneId:p.zoneId},null,2)}\n\n// Реальная таблица zone_1/wood_chest: "zone1_common"\n// Подменена на: "${p.probabilityKey}" (100% Legendary)`;},
+    vulnResp(p){return `// ⚠ УЯЗВИМЫЙ СЕРВЕР:\n\nconst result = Backend.Probability.Roll(\n  body.probabilityKey  // ← "${p.probabilityKey}"\n);\n// Роллит Legendary таблицу!\n// → { itemId: "WPN_KNT_LEG_001", rarity: "Legendary" }\n// HTTP 200`;},
+    fixResp(p){const real=({zone_1:{wood_chest:'zone1_common',gold_chest:'zone1_rare'},zone_2:{wood_chest:'zone2_common',gold_chest:'zone2_epic'},boss:{reward:'boss_drop'}})[p.zoneId]?.[p.chestId]||'zone1_common';return `// ✅ ЗАЩИЩЁННЫЙ СЕРВЕР:\n\nconst CHEST_MAP = {\n  zone_1: { wood_chest: "zone1_common",\n             gold_chest: "zone1_rare" },\n  zone_2: { wood_chest: "zone2_common" },\n  boss:   { reward:     "boss_drop" }\n};\n// probabilityKey от клиента — ИГНОРИРУЕТСЯ\nconst key = CHEST_MAP["${p.zoneId}"]["${p.chestId}"];\n// key = "${real}"\nconst drop = Backend.Probability.Roll(key);\n// → { itemId: "WPN_KNT_COM_001" } (Common)`;},
+    steps(p){const real=({zone_1:{wood_chest:'zone1_common',gold_chest:'zone1_rare'},zone_2:{wood_chest:'zone2_common',gold_chest:'zone2_epic'},boss:{reward:'boss_drop'}})[p.zoneId]?.[p.chestId]||'zone1_common';return [`[1/4] probabilityKey="${p.probabilityKey}" → ИГНОРИРУЕТСЯ`,`[2/4] Контекст: zone=${p.zoneId}, chest=${p.chestId}`,`[3/4] Маппинг: CHEST_MAP[${p.zoneId}][${p.chestId}] = "${real}"`,`[4/4] Roll("${real}") → Common дроп`];},
+    isAttack(p){const r=({zone_1:{wood_chest:'zone1_common',gold_chest:'zone1_rare'},zone_2:{wood_chest:'zone2_common',gold_chest:'zone2_epic'},boss:{reward:'boss_drop'}})[p.zoneId]?.[p.chestId]||'zone1_common';return p.probabilityKey!==r;}
+  },
+
+  replay: {
+    label: 'TBH-011 — Request Replay (Исправлено)',
+    vuln: false,
+    vulnPath: '/api/vuln/loot/collect',
+    fixedPath: '/api/fixed/loot/collect',
+    method: 'POST',
+    buildBody(p) { return { chestId:p.chestId, eventId:p.eventId }; },
+    params: [
+      {id:'chestId', label:'Chest ID', type:'text', default:'chest_dungeon_3_01'},
+      {id:'eventId', label:'Event ID (повторить)', type:'text', default:'a3f2bc91-9e20-76d4-3b32-a37c1c741f25'},
+    ],
+    buildReq(p){return `POST /v1/loot/collect HTTP/1.1\nHost: game.thebackend.io\nAuthorization: Bearer eyJ0eXAiOiJKV1Q...\n\n${JSON.stringify({chestId:p.chestId,eventId:p.eventId},null,2)}\n\n// Отправляется ПОВТОРНО с тем же eventId\n// (Burp Suite → Repeater → Send)`;},
+    vulnResp(p){return `// ✅ ИСПРАВЛЕНО — idempotency:\n\nconst key = "loot:" + "${p.eventId}";\nif (await Cache.Exists(key)) {\n  // Уже обработан!\n  return { status: 409,\n           error: "Already processed" };\n}\n// HTTP 409 Conflict\n// Повторный дроп не выдаётся`;},
+    fixResp(p){return `// Клиент генерирует НОВЫЙ eventId на каждый сундук:\n\nvar param = new Param();\nparam.Add("chestId", "${p.chestId}");\nparam.Add("eventId", Guid.NewGuid().ToString());\n//         ↑ новый UUID каждый раз\nBackend.Function.Call("collectLoot", param, cb);\n\n// Одинаковый eventId = отклонён (409)`;},
+    steps(p){return [`[1/3] eventId="${p.eventId}"`,`[2/3] Cache.Exists("loot:${p.eventId}") → TRUE`,`[3/3] HTTP 409 — Already processed`];},
+    isAttack(){return false;}
+  },
+
+  aws: {
+    label: 'TBH-006 — AWS Gateway Unauthorized',
+    vuln: true,
+    vulnPath: '/api/vuln/aws/action',
+    fixedPath: '/api/fixed/aws/action',
+    method: 'POST',
+    buildBody(p) { return { action:p.action, userId:p.userId, value:p.value }; },
+    params: [
+      {id:'action', label:'Action',  type:'select', opts:['give_reward','reset_cooldown','modify_score','trigger_event'], default:'give_reward'},
+      {id:'userId', label:'User ID', type:'text',   default:'victim_player_123'},
+      {id:'value',  label:'Value',   type:'text',   default:'legendary_pack'},
+    ],
+    buildReq(p){return `POST https://50librtl78.execute-api\n  .ap-northeast-2.amazonaws.com/prod/action\nContent-Type: application/json\n// Без Authorization заголовка!\n\n${JSON.stringify({action:p.action,userId:p.userId,value:p.value},null,2)}\n\n// URL получен из GameAssembly.dll (strings)\n// Нет авторизатора — прямой вызов Lambda`;},
+    vulnResp(p){return `// ⚠ БЕЗ Lambda Authorizer:\n\nexports.handler = async(event) => {\n  // Нет проверки токена!\n  const {action, userId, value} = event.body;\n  await processAction(action, userId, value);\n  return { statusCode: 200, body: "ok" };\n};\n// HTTP 200 — действие выполнено\n// action="${p.action}", userId="${p.userId}"`;},
+    fixResp(p){return `// ✅ Lambda Authorizer:\n\nexports.handler = async(event) => {\n  const token = event.headers\n    ?.Authorization?.replace("Bearer ","");\n  const user = await verifyBACKNDToken(token);\n  if(!user) throw new Error("Unauthorized");\n\n  // Проверка: user.id === body.userId?\n  if(user.id !== event.body.userId)\n    throw new Error("Forbidden");\n\n  return allowPolicy(user.id);\n};\n// HTTP 403 для неавторизованных`;},
+    steps(p){return [`[1/4] POST /prod/action без Authorization`,`[2/4] Lambda Authorizer: токен отсутствует`,`[3/4] verifyBACKNDToken(undefined) → null`,`[4/4] HTTP 403 Forbidden — запрос отклонён`];},
+    isAttack(){return true;}
+  },
+};
+
+// ─── PARAM STATE ──────────────────────────────────────────────────────────────
+let currentParams = {};
+
+function onScenarioChange() {
+  const key = document.getElementById('dsel').value;
+  const sc = SCENARIOS[key];
+  currentParams = {};
+  sc.params.forEach(p => { currentParams[p.id] = p.default; });
+  renderParams(key);
+  clearPanels();
+}
+
+function renderParams(key) {
+  const sc = SCENARIOS[key];
+  const panel = document.getElementById('param-panel');
+  panel.innerHTML = '<div style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;margin-bottom:.75rem">Параметры запроса</div>';
+
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.65rem';
+
+  sc.params.forEach(p => {
+    const wrap = document.createElement('div');
+    // Update label with real stat if it's a stat field
+    let labelText = p.label;
+    if (['atk','def','hp','mgk'].includes(p.id)) {
+      const itemId = currentParams['itemId'];
+      const real = ITEM_DB[itemId];
+      if (real) labelText = `${p.id.toUpperCase()} (реальный: ${real[p.id]||0})`;
+    }
+
+    if (p.type === 'item') {
+      wrap.innerHTML = `<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">${labelText}</label>
+        <select id="p_${p.id}" onchange="onParamChange('${p.id}',this.value,'${key}')" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+          ${Object.entries(ITEM_DB).map(([id,d])=>`<option value="${id}" ${id===p.default?'selected':''}>${id} — ${d.name}</option>`).join('')}
+        </select>`;
+    } else if (p.type === 'select') {
+      wrap.innerHTML = `<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">${labelText}</label>
+        <select id="p_${p.id}" onchange="onParamChange('${p.id}',this.value,'${key}')" style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">
+          ${p.opts.map(o=>`<option ${o===p.default?'selected':''}>${o}</option>`).join('')}
+        </select>`;
+    } else if (p.type === 'number') {
+      wrap.innerHTML = `<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px" id="lbl_${p.id}">${labelText}</label>
+        <div style="display:flex;gap:4px;align-items:center">
+          <input id="p_${p.id}" type="number" value="${p.default}" min="${p.min}" max="${p.max}"
+            oninput="onParamChange('${p.id}',this.value,'${key}')"
+            style="flex:1;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px;width:100%">
+        </div>`;
+    } else {
+      wrap.innerHTML = `<label style="font-size:11px;color:var(--text3);display:block;margin-bottom:3px">${labelText}</label>
+        <input id="p_${p.id}" type="text" value="${p.default}"
+          oninput="onParamChange('${p.id}',this.value,'${key}')"
+          style="width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--text);padding:.35rem .5rem;border-radius:var(--r);font-size:12px">`;
+    }
+    grid.appendChild(wrap);
+  });
+  panel.appendChild(grid);
+
+  // Show current equipped item stats for equip scenario
+  if (key === 'equip') refreshEquipHint();
+}
+
+function onParamChange(id, val, key) {
+  currentParams[id] = val;
+  if (key === 'equip') {
+    if (id === 'itemId') {
+      // Update real stat labels and reset stat inputs to real values
+      const real = ITEM_DB[val] || {};
+      ['atk','def','hp','mgk'].forEach(stat => {
+        const lbl = document.getElementById('lbl_'+stat);
+        if (lbl) lbl.textContent = `${stat.toUpperCase()} (реальный: ${real[stat]||0})`;
+        const inp = document.getElementById('p_'+stat);
+        if (inp) { inp.value = real[stat]||0; currentParams[stat] = real[stat]||0; }
+      });
+    }
+    refreshEquipHint();
+  }
+}
+
+function refreshEquipHint() {
+  const itemId = currentParams['itemId'];
+  const real = ITEM_DB[itemId];
+  if (!real) return;
+  let panel = document.getElementById('equip-hint');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'equip-hint';
+    panel.style.cssText = 'margin-top:.75rem;padding:.6rem .875rem;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);font-size:12px;font-family:var(--mono);color:var(--text2)';
+    document.getElementById('param-panel').appendChild(panel);
+  }
+  const atk=+currentParams['atk']||0, def=+currentParams['def']||0, hp=+currentParams['hp']||0;
+  const aChanged=atk!==real.atk, dChanged=def!==real.def, hChanged=hp!==real.hp;
+  const anyChanged = aChanged||dChanged||hChanged;
+  panel.innerHTML = `Реальные статы <b>${itemId}</b> в ITEM_DB: `
+    + `ATK=<span style="color:${aChanged?'var(--crit)':'var(--low)'}">${real.atk}</span> `
+    + `DEF=<span style="color:${dChanged?'var(--crit)':'var(--low)'}">${real.def}</span> `
+    + `HP=<span style="color:${hChanged?'var(--crit)':'var(--low)'}">${real.hp}</span> `
+    + `MGK=<span style="color:var(--low)">${real.mgk}</span>`
+    + (anyChanged ? `<span style="color:var(--crit);margin-left:.75rem;font-weight:700">⚠ ПОДМЕНА ОБНАРУЖЕНА</span>` : `<span style="color:var(--low);margin-left:.75rem">✓ совпадает</span>`);
+}
+
+function resetParams() {
+  const key = document.getElementById('dsel').value;
+  const sc = SCENARIOS[key];
+  sc.params.forEach(p => {
+    currentParams[p.id] = p.default;
+    const el = document.getElementById('p_'+p.id);
+    if (el) el.value = p.default;
+  });
+  if (key === 'equip') refreshEquipHint();
+  clearPanels();
+}
+
+function clearPanels() {
+  ['dc-req','dc-srv','dc-fix','dc-steps'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent='';
+  });
+  const r=document.getElementById('demo-result');
+  if(r){r.style.display='none';}
+}
+
+// ─── LIVE SERVER MODE ─────────────────────────────────────────────────────────
+const SERVER_BASE = 'http://localhost:8080';
+let serverLive = false;
+let realMode = false;
+let _tokenPollTimer = null;
+
+function showPinModal() {
+  const m = document.getElementById('pin-modal');
+  if (!m) { alert('PIN modal not found — reload the page'); return; }
+  m.style.display = 'flex';
+  setTimeout(function() {
+    const inp = document.getElementById('pin-input');
+    if (inp) inp.focus();
+  }, 50);
+}
+
+function hidePinModal() {
+  document.getElementById('pin-modal').style.display = 'none';
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').style.display = 'none';
+}
+
+function checkPin(val) {
+  if (val === '3105') {
+    hidePinModal();
+    activateRealMode();
+  } else if (val.length === 4) {
+    document.getElementById('pin-error').style.display = '';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function activateRealMode() {
+  realMode = true;
+  document.getElementById('btn-real-test').style.display = 'none';
+  document.getElementById('btn-real-exit').style.display = '';
+  document.getElementById('token-panel').style.display = '';
+  startTokenPoll();
+}
+
+function deactivateRealMode() {
+  realMode = false;
+  if (_tokenPollTimer) { clearInterval(_tokenPollTimer); _tokenPollTimer = null; }
+  document.getElementById('btn-real-test').style.display = '';
+  document.getElementById('btn-real-exit').style.display = 'none';
+  document.getElementById('token-panel').style.display = 'none';
+}
+
+async function pollCapturedToken() {
+  if (!serverLive) return;
+  try {
+    const r = await fetchWithTimeout(SERVER_BASE + '/api/status', {}, 2000);
+    const d = await r.json();
+    const el = document.getElementById('token-status');
+    if (d.hasToken) {
+      var methodIcon = {
+        'process':        '🧠 память',
+        'https-proxy':    '📡 HTTPS-прокси',
+        'log':            '📄 Player.log',
+        'registry':       '🗝 реестр',
+        'persistent-data':'💾 файлы игры',
+        'clipboard':      '📋 буфер',
+        'manual':         '✏ вручную'
+      }[d.captureMethod] || d.captureMethod;
+      el.innerHTML = '&#x2705; ' + methodIcon + ' · ' + d.capturedAt + ' · <code style="font-size:11px;opacity:.8">' + d.tokenMasked + '</code>';
+      el.style.color = 'var(--low)';
+    } else {
+      el.textContent = '⧖ Ожидание... скопируйте Bearer eyJ... из Fiddler/Burp в буфер обмена';
+      el.style.color = 'var(--text2)';
+    }
+  } catch { /* server might be starting */ }
+}
+
+function startTokenPoll() {
+  if (_tokenPollTimer) clearInterval(_tokenPollTimer);
+  pollCapturedToken();
+  _tokenPollTimer = setInterval(pollCapturedToken, 2000);
+}
+
+async function clearCapturedToken() {
+  try { await fetch(SERVER_BASE + '/api/clear-token', { method: 'POST' }); } catch {}
+  const el = document.getElementById('token-status');
+  el.textContent = '⧖ Ожидание... скопируйте Bearer eyJ... из Fiddler/Burp в буфер обмена';
+  el.style.color = 'var(--text2)';
+}
+
+async function applyManualToken() {
+  const input = document.getElementById('manual-token-input');
+  if (!input) return;
+  let val = input.value.trim();
+  if (!val) return;
+  if (!val.startsWith('Bearer ')) val = 'Bearer ' + val;
+  if (!val.match(/^Bearer eyJ/i)) { alert('Неверный формат — JWT начинается с eyJ...'); return; }
+  try {
+    const r = await fetch(SERVER_BASE + '/api/set-token', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({token: val})
+    });
+    const d = await r.json();
+    if (d.ok) { input.value = ''; await pollCapturedToken(); }
+    else { alert('Сервер отклонил: ' + (d.error || '?')); }
+  } catch (e) {
+    alert('Сервер не запущен — запустите start-demo.bat');
+  }
+}
+
+async function scanProcessNow() {
+  const st = document.getElementById('scan-status');
+  if (st) { st.textContent = '⏳ сканирование...'; st.style.color = 'var(--text3)'; }
+  try {
+    const r = await fetchWithTimeout(SERVER_BASE + '/api/status', {}, 5000);
+    const d = await r.json();
+    if (d.hasToken) {
+      if (st) { st.textContent = '✅ токен найден!'; st.style.color = 'var(--low)'; }
+      await pollCapturedToken();
+    } else {
+      const msg = d.gameRunning ? '⚠ процесс найден, токен не найден в памяти' : '✗ процесс игры не обнаружен';
+      if (st) { st.textContent = msg; st.style.color = 'var(--high)'; }
+    }
+  } catch(e) {
+    if (st) { st.textContent = '✗ сервер не отвечает'; st.style.color = 'var(--crit)'; }
+  }
+}
+
+function toggleProcList() {
+  const el = document.getElementById('proc-diag');
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+async function loadProcessList() {
+  const el = document.getElementById('proc-list');
+  if (!el) return;
+  el.textContent = '⏳ загрузка...';
+  try {
+    const r = await fetch(SERVER_BASE + '/api/debug/processes');
+    const d = await r.json();
+    const found = d.foundGameProcess;
+    let html = '';
+    if (found) {
+      html += '<div style="color:var(--low);font-weight:600;margin-bottom:.3rem">✅ Игра найдена: ' + found.name + ' (PID ' + found.pid + ')</div>';
+    } else {
+      html += '<div style="color:var(--high);margin-bottom:.3rem">⚠ Игра не найдена автоматически — кликните на нужный процесс:</div>';
+    }
+    html += d.processes.map(function(p) {
+      return '<div onclick="selectProcess(\'' + p.name.replace(/'/g,"\\'")+  '\')" ' +
+        'style="cursor:pointer;padding:2px 4px;border-radius:3px;display:flex;gap:.5rem;align-items:baseline" ' +
+        'onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'\'">' +
+        '<span style="color:var(--text2);min-width:160px">' + p.name + '</span>' +
+        '<span style="color:var(--text3);font-size:10px">PID ' + p.pid + ' · ' + p.mem + ' MB</span>' +
+        (p.title ? '<span style="color:var(--text3);font-size:10px">' + p.title + '</span>' : '') +
+        '</div>';
+    }).join('');
+    el.innerHTML = html;
+  } catch(e) {
+    el.textContent = '✗ сервер не запущен';
+  }
+}
+
+async function selectProcess(name) {
+  document.getElementById('proc-name-input').value = name;
+  await setProcessName();
+}
+
+async function setProcessName() {
+  const input = document.getElementById('proc-name-input');
+  const name  = input ? input.value.trim() : '';
+  const st    = document.getElementById('scan-status');
+  try {
+    const r = await fetch(SERVER_BASE + '/api/set-process', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name: name})
+    });
+    const d = await r.json();
+    if (d.found) {
+      if (st) { st.textContent = '✅ процесс установлен: ' + name; st.style.color = 'var(--low)'; }
+      setTimeout(scanProcessNow, 300);
+    } else {
+      if (st) { st.textContent = '⚠ ' + name + ' — сохранено, но процесс не запущен'; st.style.color = 'var(--high)'; }
+    }
+  } catch(e) {
+    if (st) { st.textContent = '✗ сервер не запущен'; st.style.color = 'var(--crit)'; }
+  }
+}
+
+// ── HTTPS Interceptor ────────────────────────────────────────────────────────
+let _interceptorRunning = false;
+
+async function toggleInterceptor() {
+  const btn = document.getElementById('btn-interceptor');
+  const st  = document.getElementById('scan-status');
+  if (_interceptorRunning) {
+    btn.textContent = '⏳ остановка...';
+    try {
+      await fetch(SERVER_BASE + '/api/interceptor/stop', {method: 'POST'});
+    } catch {}
+    _interceptorRunning = false;
+    btn.textContent  = '📡 Автоперехват HTTPS';
+    btn.style.cssText = 'font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;border:1px solid var(--med-bd);background:var(--med-bg);color:var(--med);font-weight:600';
+    if (st) { st.textContent = 'перехват остановлен, прокси сброшен'; st.style.color = 'var(--text3)'; }
+    return;
+  }
+  btn.textContent = '⏳ запуск (генерация сертификата)...';
+  if (st) { st.textContent = 'Windows может спросить подтверждение установки CA'; st.style.color = 'var(--high)'; }
+  try {
+    const r = await fetchWithTimeout(SERVER_BASE + '/api/interceptor/start', {method:'POST'}, 30000);
+    const d = await r.json();
+    if (d.ok && d.running) {
+      _interceptorRunning = true;
+      btn.textContent  = '⏹ Остановить перехват';
+      btn.style.cssText = 'font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;border:1px solid var(--low-bd);background:var(--low-bg);color:var(--low);font-weight:600';
+      if (st) { st.textContent = '🟢 прокси запущен — запустите игру и выполните любое действие'; st.style.color = 'var(--low)'; }
+    } else {
+      btn.textContent = '📡 Автоперехват HTTPS';
+      if (st) { st.textContent = '✗ ошибка: ' + (d.error || d.msg || '?'); st.style.color = 'var(--crit)'; }
+    }
+  } catch(e) {
+    btn.textContent = '📡 Автоперехват HTTPS';
+    if (st) { st.textContent = '✗ ' + e.message; st.style.color = 'var(--crit)'; }
+  }
+}
+
+function fetchWithTimeout(url, opts, ms) {
+  return new Promise((resolve, reject) => {
+    const id = setTimeout(() => reject(new Error('timeout')), ms || 1500);
+    fetch(url, opts).then(r => { clearTimeout(id); resolve(r); }, e => { clearTimeout(id); reject(e); });
+  });
+}
+
+async function pingAndUpdateStatus() {
+  const badge = document.getElementById('srv-badge');
+  if (!badge) return;
+  try {
+    await fetchWithTimeout(SERVER_BASE + '/api/vuln/equip', {method:'OPTIONS'}, 900);
+    serverLive = true;
+    badge.textContent = '🟢 localhost:8080 — живой режим';
+    badge.style.color = 'var(--low)';
+    badge.style.borderColor = 'var(--low-bd)';
+    badge.style.background = 'var(--low-bg)';
+  } catch {
+    serverLive = false;
+    badge.textContent = '🔴 симуляция (запустите start-demo.bat)';
+    badge.style.color = 'var(--high)';
+    badge.style.borderColor = 'var(--high-bd)';
+    badge.style.background = 'var(--high-bg)';
+  }
+}
+
+function showVerdict(isAtk, vuln) {
+  const result = document.getElementById('demo-result');
+  if (isAtk && vuln) {
+    result.textContent = '🚫 УЯЗВИМОСТЬ ПОДТВЕРЖДЕНА: уязвимый сервер принял запрос без валидации. Защищённый сервер отклонил / пересчитал.';
+    result.className = 'demo-result dr-bad';
+  } else if (!isAtk) {
+    result.textContent = '✅ Параметры совпадают с легитимным запросом — атаки нет. Измените параметры для симуляции атаки.';
+    result.className = 'demo-result dr-good';
+  } else {
+    result.textContent = '✅ ИСПРАВЛЕНО: Сервер корректно отклонил или нейтрализовал запрос.';
+    result.className = 'demo-result dr-good';
+  }
+  result.style.display = 'block';
+}
+
+let _running = false;
+async function sendAttack() {
+  if (_running) return;
+  const key = document.getElementById('dsel').value;
+  const sc = SCENARIOS[key];
+  const p = {...currentParams};
+  const isLive = serverLive && sc.vulnPath;
+
+  clearPanels();
+  _running = true;
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+  btn.textContent = isLive ? '⏳ Реальный запрос...' : '⏳ Симуляция...';
+
+  if (isLive) {
+    await _sendLive(sc, p);
+  } else {
+    _sendSimulated(sc, p);
+  }
+}
+
+async function _sendLive(sc, p) {
+  const btn      = document.getElementById('btn-send');
+  const method   = sc.method || 'POST';
+  const body     = sc.buildBody(p);
+  const bodyJson = JSON.stringify(body, null, 2);
+  const isReal = realMode;
+
+  // Build vuln fetch options
+  let vulnUrl, vulnHdrs;
+  if (isReal) {
+    // Proxy to real backend — server uses auto-captured clipboard token
+    const sub = sc.vulnPath.replace('/api/vuln/', '');
+    vulnUrl  = SERVER_BASE + '/api/proxy/' + sub;
+    vulnHdrs = { 'Content-Type': 'application/json' };
+  } else {
+    vulnUrl  = SERVER_BASE + sc.vulnPath;
+    vulnHdrs = { 'Content-Type': 'application/json', 'Authorization': 'Bearer demo-token' };
+  }
+  const fixHdrs = { 'Content-Type': 'application/json', 'Authorization': 'Bearer demo-token' };
+
+  // Display request header
+  const displayHost = isReal ? 'game.thebackend.io  [via proxy]' : 'localhost:8080';
+  const displayPath = isReal ? sc.vulnPath.replace('/api/vuln', '/v1') : sc.vulnPath;
+  document.getElementById('dc-req').textContent =
+    `${method} ${displayPath} HTTP/1.1\n` +
+    `Host: ${displayHost}\n` +
+    (isReal ? `Authorization: Bearer [auto-captured]` : `Authorization: Bearer demo-token`) +
+    `\nContent-Type: application/json\n\n${bodyJson}`;
+
+  let vulnData, fixedData;
+  try {
+    const [vr, fr] = await Promise.all([
+      fetchWithTimeout(vulnUrl, { method, headers: vulnHdrs, body: JSON.stringify(body) }, 6000),
+      fetchWithTimeout(SERVER_BASE + sc.fixedPath, { method, headers: fixHdrs, body: JSON.stringify(body) }, 4000),
+    ]);
+    vulnData  = await vr.json();
+    fixedData = await fr.json();
+  } catch (err) {
+    document.getElementById('dc-srv').textContent =
+      `Connection error: ${err.message}\n\n` +
+      (isReal ? 'Real mode: server running but no token yet.\nCopy a Bearer token from Fiddler/Burp to clipboard.' :
+                'Check that start-demo.bat is running and try again.');
+    _running = false;
+    btn.disabled = false; btn.textContent = '▶ Отправить запрос';
+    serverLive = false; pingAndUpdateStatus();
+    return;
+  }
+
+  document.getElementById('dc-srv').textContent = JSON.stringify(vulnData, null, 2);
+  document.getElementById('dc-fix').textContent = JSON.stringify(fixedData, null, 2);
+
+  typeSteps('dc-steps', sc.steps(p), 0, () => {
+    showVerdict(sc.isAttack(p), sc.vuln);
+    _running = false;
+    btn.disabled = false; btn.textContent = '▶ Отправить запрос';
+  });
+}
+
+function _sendSimulated(sc, p) {
+  const btn = document.getElementById('btn-send');
+  typeText('dc-req', sc.buildReq(p), () => {
+    typeText('dc-srv', sc.vulnResp(p), () => {
+      typeText('dc-fix', sc.fixResp(p), () => {
+        typeSteps('dc-steps', sc.steps(p), 0, () => {
+          showVerdict(sc.isAttack(p), sc.vuln);
+          _running = false;
+          btn.disabled = false;
+          btn.textContent = '▶ Отправить запрос';
+        });
+      });
+    });
+  });
+}
+
+function typeText(id, text, cb) {
+  const el = document.getElementById(id);
+  el.textContent = '';
+  let cur = 0;
+  const speed = Math.max(4, Math.floor(1800 / text.length));
+  function tick() {
+    if (cur < text.length) { el.textContent = text.slice(0, ++cur); setTimeout(tick, speed); }
+    else if (cb) setTimeout(cb, 80);
+  }
+  tick();
+}
+
+function typeSteps(id, steps, i, cb) {
+  const el = document.getElementById(id);
+  if (i === 0) el.textContent = '';
+  if (i >= steps.length) { if (cb) cb(); return; }
+  const line = steps[i];
+  const cls = line.includes('✗')||line.includes('АТАК')||line.includes('УЯЗВ') ? 'err'
+             : line.includes('✓')||line.includes('совпадают') ? 'ok'
+             : line.includes('ИГНОРИР')||line.includes('ЗАБЛОК') ? 'warn' : '';
+  el.innerHTML += (cls ? `<span class="${cls}">${line}</span>` : line) + '\n';
+  setTimeout(() => typeSteps(id, steps, i + 1, cb), 350);
+}
+
+// Init demo on page load
+window.addEventListener('DOMContentLoaded', () => {
+  onScenarioChange();
+  pingAndUpdateStatus();
+  setInterval(pingAndUpdateStatus, 5000);
+});
+
+// ─── ITEM DATA ────────────────────────────────────────────────────────────────
+const ITEMS = [
+  // KNIGHT WEAPONS
+  ['WPN_KNT_COM_001','Iron Sword','Knight','W','C','+12 ATK','Shop / Zone 1','Начальный меч рыцаря'],
+  ['WPN_KNT_COM_002','Steel Sword','Knight','W','C','+22 ATK','Zone 2 Drop','Улучшенная сталь'],
+  ['WPN_KNT_UNC_001','Tempered Blade','Knight','W','U','+32 ATK','Zone 2 Boss','Закалённый клинок'],
+  ['WPN_KNT_RAR_001','Silver Blade','Knight','W','R','+45 ATK','Zone 3 Boss','Серебряный клинок vs нежить'],
+  ['WPN_KNT_RAR_002','Holy Sword','Knight','W','R','+55 ATK +5 DEF','Cathedral','Освящённый клинок'],
+  ['WPN_KNT_EPC_001','Aegis Edge','Knight','W','E','+88 ATK +15 DEF','Dungeon Boss','Меч с магической защитой'],
+  ['WPN_KNT_EPC_002','Paladin Blade','Knight','W','E','+100 ATK +25 DEF','Guild Quest','Клинок паладина'],
+  ['WPN_KNT_LEG_001','Excalibur Shard','Knight','W','L','+160 ATK +40 DEF','Final Boss','Осколок легендарного клинка'],
+  ['WPN_KNT_LEG_002',"Paladin's Oath",'Knight','W','L','+175 ATK +50 DEF','True Final Boss','Клятва паладина'],
+  // KNIGHT ARMOR
+  ['ARM_KNT_COM_001','Leather Vest','Knight','A','C','+20 DEF','Shop','Простая кожаная броня'],
+  ['ARM_KNT_COM_002','Chain Mail','Knight','A','C','+35 DEF','Zone 2','Кольчуга'],
+  ['ARM_KNT_RAR_001','Knight Plate','Knight','A','R','+55 DEF +200 HP','Craft / Zone 4','Тяжёлая броня рыцаря'],
+  ['ARM_KNT_EPC_001','Fortress Armor','Knight','A','E','+110 DEF +500 HP','Dungeon Drop','Неприступная броня'],
+  ['ARM_KNT_LEG_001','Divine Aegis','Knight','A','L','+200 DEF +1000 HP','Final Boss','Доспех богов'],
+  // KNIGHT ACCESSORY
+  ['ACC_KNT_COM_001','Iron Buckler','Knight','Ac','C','+10 DEF','Shop','Малый щит'],
+  ['ACC_KNT_RAR_001','Steel Shield','Knight','Ac','R','+40 DEF +100 HP','Zone 3','Стальной щит'],
+  ['ACC_KNT_EPC_001','Shield of Faith','Knight','Ac','E','+80 DEF +300 HP','Cathedral','Щит веры'],
+  // WIZARD WEAPONS
+  ['WPN_WIZ_COM_001','Oak Staff','Wizard','W','C','+10 ATK +5 MGK','Shop / Zone 1','Простой деревянный посох'],
+  ['WPN_WIZ_COM_002','Apprentice Wand','Wizard','W','C','+15 ATK +10 MGK','Zone 1','Ученический жезл'],
+  ['WPN_WIZ_RAR_001','Crystal Wand','Wizard','W','R','+35 ATK +30 MGK','Zone 2 Boss','Кристальный жезл'],
+  ['WPN_WIZ_RAR_002','Moon Staff','Wizard','W','R','+45 ATK +40 MGK','Night Dungeon','Лунный посох'],
+  ['WPN_WIZ_EPC_001','Arcane Tome','Wizard','W','E','+70 ATK +80 MGK','Magic Tower','Книга древней магии'],
+  ['WPN_WIZ_EPC_002','Mana Prism','Wizard','W','E','+85 ATK +100 MGK','Dungeon Boss','Магический призм'],
+  ['WPN_WIZ_LEG_001','Staff of Eternity','Wizard','W','L','+130 ATK +200 MGK','Final Boss','Легендарный посох вечности'],
+  ['WPN_WIZ_LEG_002','Void Scepter','Wizard','W','L','+150 ATK +250 MGK','True Final Boss','Скипетр пустоты'],
+  // WIZARD ARMOR
+  ['ARM_WIZ_COM_001','Apprentice Robe','Wizard','A','C','+10 DEF +50 MP','Shop','Мантия ученика'],
+  ['ARM_WIZ_RAR_001','Mage Cloak','Wizard','A','R','+25 DEF +150 MP','Zone 3','Плащ мага'],
+  ['ARM_WIZ_EPC_001','Arcane Vestment','Wizard','A','E','+55 DEF +350 MP','Magic Tower','Магическое одеяние'],
+  ['ARM_WIZ_LEG_001','Ether Mantle','Wizard','A','L','+100 DEF +700 MP','Final Boss','Эфирная мантия'],
+  // ARCHER WEAPONS
+  ['WPN_ARC_COM_001','Wood Bow','Archer','W','C','+14 ATK','Shop / Zone 1','Простой лук охотника'],
+  ['WPN_ARC_COM_002','Composite Bow','Archer','W','C','+24 ATK','Zone 2','Композитный лук'],
+  ['WPN_ARC_RAR_001','Elven Bow','Archer','W','R','+48 ATK +10 SPD','Forest Zone','Лёгкий эльфийский лук'],
+  ['WPN_ARC_RAR_002','War Bow','Archer','W','R','+60 ATK +15 SPD','Zone 4','Боевой лук'],
+  ['WPN_ARC_EPC_001','Shadow Crossbow','Archer','W','E','+90 ATK +25 SPD','Shadow Dungeon','Арбалет с отравленными болтами'],
+  ['WPN_ARC_EPC_002','Sniper Bow','Archer','W','E','+105 ATK +35 SPD','Guild Reward','Снайперский лук'],
+  ['WPN_ARC_LEG_001','Heartseeker','Archer','W','L','+155 ATK +60 SPD','Final Boss','Всегда находит цель'],
+  ['WPN_ARC_LEG_002','Phantom Arrow','Archer','W','L','+170 ATK +75 SPD','True Final Boss','Стрела-призрак'],
+  // ARCHER ARMOR
+  ['ARM_ARC_COM_001','Leather Tunic','Archer','A','C','+15 DEF +5 SPD','Shop','Кожаная туника'],
+  ['ARM_ARC_RAR_001',"Hunter's Vest",'Archer','A','R','+35 DEF +20 SPD','Forest Zone','Жилет охотника'],
+  ['ARM_ARC_EPC_001','Shadow Garb','Archer','A','E','+65 DEF +45 SPD','Shadow Dungeon','Одеяние тени'],
+  ['ARM_ARC_LEG_001','Phantom Mantle','Archer','A','L','+120 DEF +90 SPD','Final Boss','Мантия призрака'],
+  // SLAYER WEAPONS
+  ['WPN_SLY_COM_001','Iron Axe','Slayer','W','C','+18 ATK','Shop / Zone 1','Тяжёлый боевой топор'],
+  ['WPN_SLY_COM_002','Battle Axe','Slayer','W','C','+28 ATK','Zone 2','Боевой топор'],
+  ['WPN_SLY_RAR_001','War Cleaver','Slayer','W','R','+52 ATK','Zone 3','Боевой тесак'],
+  ['WPN_SLY_EPC_001','Demolisher','Slayer','W','E','+95 ATK','Dungeon','Разрушитель'],
+  ['WPN_SLY_EPC_002','Skewer Shot','Slayer','W','E','+108 ATK','Arena Boss','Пронзает несколько врагов'],
+  ['WPN_SLY_LEG_001','Ragnarok Axe','Slayer','W','L','+180 ATK','Final Boss','Топор конца света'],
+  // SLAYER ARMOR
+  ['ARM_SLY_RAR_001','Berserker Mail','Slayer','A','R','+40 DEF +ATK5%','Arena','Броня берсеркера'],
+  ['ARM_SLY_EPC_001','Warlord Plate','Slayer','A','E','+90 DEF +ATK10%','Dungeon Boss','Броня военного лорда'],
+  ['ARM_SLY_LEG_001','Doom Mantle','Slayer','A','L','+170 DEF +ATK20%','Final Boss','Мантия рока'],
+  // HUNTER WEAPONS
+  ['WPN_HNT_COM_001','Hunter Knife','Hunter','W','C','+11 ATK +8 SPD','Shop / Zone 1','Быстрый охотничий нож'],
+  ['WPN_HNT_COM_002','Twin Daggers','Hunter','W','C','+18 ATK +12 SPD','Zone 2','Двойные кинжалы'],
+  ['WPN_HNT_RAR_001','Venomfang','Hunter','W','R','+42 ATK яд','Swamp Zone','Ядовитый клинок'],
+  ['WPN_HNT_EPC_001','Shadow Blade','Hunter','W','E','+80 ATK +30 SPD','Shadow Dungeon','Клинок тени'],
+  ['WPN_HNT_EPC_002','Frost Bolt','Hunter','W','E','+75 ATK замедление','Ice Dungeon','Замораживает врагов'],
+  ['WPN_HNT_LEG_001','Phantom Blade','Hunter','W','L','+148 ATK +50 SPD','Final Boss','Невидимый клинок'],
+  // HUNTER ARMOR
+  ['ARM_HNT_RAR_001','Scout Garb','Hunter','A','R','+30 DEF +25 SPD','Forest Zone','Одеяние разведчика'],
+  ["ARM_HNT_EPC_001","Assassin's Cloak",'Hunter','A','E','+60 DEF +55 SPD','Shadow Dungeon','Плащ убийцы'],
+  ['ARM_HNT_LEG_001','Ghost Veil','Hunter','A','L','+115 DEF +100 SPD','Final Boss','Завеса призрака'],
+  // PRIEST WEAPONS
+  ['WPN_PRS_COM_001','Holy Rod','Priest','Pr','C','+8 ATK +15 HEAL','Shop','Базовый посох жреца'],
+  ['WPN_PRS_COM_002','Healing Staff','Priest','Pr','C','+12 ATK +25 HEAL','Zone 2','Посох исцеления'],
+  ['WPN_PRS_RAR_001','Blessed Scepter','Priest','Pr','R','+35 ATK +60 HEAL','Cathedral','Благословенный скипетр'],
+  ['WPN_PRS_EPC_001','Divine Scepter','Priest','Pr','E','+60 ATK +90 HEAL','Cathedral Boss','Усиливает исцеляющие заклинания'],
+  ['WPN_PRS_EPC_002',"Prophet's Tome",'Priest','Pr','E','+75 ATK +110 HEAL','Holy Dungeon','Книга пророка'],
+  ["WPN_PRS_LEG_001","Angel's Grace",'Priest','Pr','L','+110 ATK +200 HEAL','Final Boss','Массовое исцеление'],
+  // PRIEST ARMOR
+  ['ARM_PRS_COM_001','Acolyte Robe','Priest','A','C','+12 DEF +30 HEAL','Shop','Мантия послушника'],
+  ['ARM_PRS_RAR_001','Cleric Mantle','Priest','A','R','+30 DEF +80 HEAL','Zone 3','Мантия клирика'],
+  ['ARM_PRS_EPC_001',"Bishop's Vestment",'Priest','A','E','+65 DEF +180 HEAL','Cathedral Boss','Одеяние епископа'],
+  ['ARM_PRS_LEG_001','Holy Shroud','Priest','A','L','+125 DEF +400 HEAL','Final Boss','Священный покров'],
+  // SHARED ACCESSORIES
+  ['ACC_ALL_COM_001','Copper Ring','All','Ac','C','+5 ATK','Shop','Простое медное кольцо'],
+  ['ACC_ALL_COM_002','Silver Pendant','All','Ac','C','+5 DEF','Shop','Серебряный кулон'],
+  ['ACC_ALL_RAR_001','Ring of Vitality','All','Ac','R','+100 HP','Zone 3 Drop','Увеличивает HP'],
+  ['ACC_ALL_RAR_002','Mage Seal','All','Ac','R','+50 MP +10 MGK','Zone 3','Магическая печать'],
+  ['ACC_ALL_RAR_003','Speed Ring','All','Ac','R','+15 SPD','Zone 4','Кольцо скорости'],
+  ['ACC_ALL_EPC_001','Amulet of Power','All','Ac','E','+30 ATK +50 DEF','Dungeon','Мощный амулет'],
+  ['ACC_ALL_EPC_002','Dragon Pendant','All','Ac','E','+50 ATK +200 HP','Dragon Zone','Кулон дракона'],
+  ['ACC_ALL_LEG_001','Orb of Eternity','All','Ac','L','+80 ATK +100 DEF +500 HP','Final Boss','Сфера вечности'],
+  // CONSUMABLES
+  ['CON_ALL_COM_001','Health Potion S','All','Co','C','+200 HP','Shop / Drop','Малое зелье здоровья'],
+  ['CON_ALL_COM_002','Health Potion M','All','Co','C','+500 HP','Shop / Drop','Среднее зелье здоровья'],
+  ['CON_ALL_COM_003','Mana Potion','All','Co','C','+100 MP','Shop','Зелье маны'],
+  ['CON_ALL_RAR_001','Health Potion L','All','Co','R','+1200 HP','Quest / Drop','Большое зелье здоровья'],
+  ['CON_ALL_RAR_002','Elixir of Strength','All','Co','R','+20% ATK 30s','Quest Reward','Временно усиливает атаку'],
+  ['CON_ALL_EPC_001','Battle Potion','All','Co','E','+30% ATK +DEF 60s','Event','Боевое зелье'],
+  ['CON_ALL_EPC_002','Phoenix Feather','All','Co','E','Воскрешение 50% HP','Event / Shop','Воскрешает при гибели'],
+  ['CON_ALL_LEG_001',"Dragon's Blood",'All','Co','L','+50% ALL STATS 120s','Final Reward','Кровь дракона — макс усиление'],
+  // CURRENCY
+  ['GOLD_PACK_1000','Gold Pack 1k','All','Co','C','1 000 G','Quest / Event','Малый мешок золота'],
+  ['GOLD_PACK_5000','Gold Pack 5k','All','Co','C','5 000 G','Daily / Event','Мешок золота'],
+  ['GOLD_PACK_10000','Gold Pack 10k','All','Co','R','10 000 G','Weekly / Event','Большой мешок золота'],
+  ['GOLD_PACK_100000','Gold Pack 100k','All','Co','E','100 000 G','Major Event','Сундук с золотом'],
+  ['GEM_PACK_50','Gem Pack 50','All','Co','R','50 💎','Purchase','50 кристаллов'],
+  ['GEM_PACK_100','Gem Pack 100','All','Co','E','100 💎','Purchase / Event','100 кристаллов'],
+  ['GEM_PACK_500','Gem Pack 500','All','Co','L','500 💎','Purchase','500 кристаллов'],
+  // MATERIALS
+  ['MAT_COM_001','Iron Ore','All','Mat','C','Craft x1','Zone 1-2 Drop','Железная руда для крафта'],
+  ['MAT_COM_002','Steel Fragment','All','Mat','C','Craft x1','Zone 2-3 Drop','Осколок стали'],
+  ['MAT_RAR_001','Magic Crystal','All','Mat','R','Upgrade +1','Dungeon Drop','Кристалл для улучшения'],
+  ['MAT_RAR_002','Arcane Dust','All','Mat','R','Enchant x1','Magic Tower','Магическая пыль'],
+  ['MAT_EPC_001','Dragon Scale','All','Mat','E','Craft Legendary','Dragon Zone','Чешуя дракона'],
+  ['MAT_EPC_002','Phoenix Ash','All','Mat','E','Resurrect Craft','Final Dungeon','Пепел феникса'],
+  ['MAT_LEG_001','Void Shard','All','Mat','L','Craft True Legendary','True Final Boss','Осколок пустоты'],
+];
+
+// ─── ICON GENERATION ─────────────────────────────────────────────────────────
+const RARITY_COLOR = { C:'#8b949e', U:'#40b0c8', R:'#58a6ff', E:'#d2a8ff', L:'#e3a11d' };
+
+function svgIcon(weapClass, type, rarity) {
+  const col = RARITY_COLOR[rarity] || '#8b949e';
+  const c2 = col + '44'; // semi-transparent fill
+  const s = 34;
+
+  // Weapon type by class
+  const wClass = weapClass;
+  let shape = '';
+
+  if (type === 'W' || type === 'Pr') {
+    if (wClass === 'Knight') {
+      // Sword
+      shape = `<rect x="15.5" y="4" width="3" height="16" rx="1.5" fill="${col}"/>
+        <rect x="9" y="17" width="16" height="3" rx="1.5" fill="${col}"/>
+        <rect x="14" y="20" width="6" height="7" rx="1.5" fill="${col}" opacity=".8"/>
+        <circle cx="17" cy="28" r="2.5" fill="${col}"/>
+        <polygon points="15,4 19,4 17,1.5" fill="${col}"/>`;
+    } else if (wClass === 'Wizard') {
+      // Staff with orb
+      shape = `<rect x="15.5" y="8" width="3" height="22" rx="1.5" fill="${col}"/>
+        <circle cx="17" cy="6" r="5" fill="${col}" opacity=".9"/>
+        <circle cx="17" cy="6" r="2.5" fill="white" opacity=".25"/>`;
+    } else if (wClass === 'Archer') {
+      // Bow
+      shape = `<path d="M10 3 C5 10 5 22 10 29" stroke="${col}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <line x1="10" y1="3" x2="10" y2="29" stroke="${col}" stroke-width="1" opacity=".4"/>
+        <line x1="10" y1="16" x2="24" y2="16" stroke="${col}" stroke-width="1.5"/>
+        <polygon points="24,13.5 29,16 24,18.5" fill="${col}"/>
+        <line x1="11" y1="13" x2="13" y2="16" stroke="${col}" stroke-width="1"/>
+        <line x1="11" y1="19" x2="13" y2="16" stroke="${col}" stroke-width="1"/>`;
+    } else if (wClass === 'Slayer') {
+      // Axe
+      shape = `<rect x="15.5" y="14" width="3" height="18" rx="1.5" fill="${col}"/>
+        <path d="M17 2 C17 2 26 5 24 14 C22 18 17 14 17 14 C17 14 12 18 10 14 C8 5 17 2 17 2 Z" fill="${col}"/>`;
+    } else if (wClass === 'Hunter') {
+      // Dagger
+      shape = `<polygon points="17,2 19.5,15 17,20 14.5,15" fill="${col}"/>
+        <rect x="11" y="15" width="12" height="3" rx="1.5" fill="${col}"/>
+        <rect x="15.5" y="18" width="3" height="9" rx="1.5" fill="${col}" opacity=".85"/>`;
+    } else if (wClass === 'Priest') {
+      // Cross
+      shape = `<rect x="15.5" y="4" width="3" height="26" rx="1.5" fill="${col}"/>
+        <rect x="8" y="10" width="18" height="3" rx="1.5" fill="${col}"/>
+        <circle cx="17" cy="5.5" r="3" fill="${col}" opacity=".7"/>`;
+    }
+  } else if (type === 'A') {
+    // Armor/Shield
+    shape = `<path d="M17 3 L27 7 L27 19 Q27 28 17 31 Q7 28 7 19 L7 7 Z" fill="${col}" opacity=".85"/>
+      <rect x="15.5" y="11" width="3" height="12" fill="white" opacity=".2" rx="1"/>
+      <rect x="10" y="16" width="14" height="3" fill="white" opacity=".2" rx="1"/>`;
+  } else if (type === 'Ac') {
+    // Ring with gem
+    shape = `<circle cx="17" cy="21" r="9" fill="none" stroke="${col}" stroke-width="3"/>
+      <polygon points="17,4 13.5,11 17,14 20.5,11" fill="${col}"/>
+      <polygon points="17,5 15,9.5 17,12 19,9.5" fill="white" opacity=".3"/>`;
+  } else if (type === 'Co' || type === 'Mat') {
+    // Currency / consumable
+    if (rarity === 'L' || rarity === 'E') {
+      // Diamond/gem
+      shape = `<polygon points="17,3 27,14 17,31 7,14" fill="${col}" opacity=".85"/>
+        <polygon points="17,3 23,11 17,9 11,11" fill="white" opacity=".25"/>`;
+    } else {
+      // Potion flask
+      shape = `<rect x="14" y="4" width="6" height="6" rx="1.5" fill="${col}"/>
+        <rect x="12.5" y="3" width="9" height="2.5" rx="1.5" fill="${col}" opacity=".7"/>
+        <path d="M12 10 L9 28 L25 28 L22 10 Z" fill="${col}" opacity=".8" rx="2"/>
+        <ellipse cx="15" cy="22" rx="3" ry="2" fill="white" opacity=".18"/>`;
+    }
+  }
+
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" xmlns="http://www.w3.org/2000/svg" style="display:block">${shape}</svg>`;
+}
+
+// ─── RENDER ITEMS ─────────────────────────────────────────────────────────────
+const RARITY_LABEL = { C:'Common', U:'Uncommon', R:'Rare', E:'Epic', L:'Legendary' };
+const TYPE_LABEL   = { W:'Weapon', A:'Armor', Ac:'Accss', Co:'Consm', Pr:'Weapon', Mat:'Matrl' };
+const TYPE_CLASS   = { W:'tW', A:'tA', Ac:'tAc', Co:'tCo', Pr:'tW', Mat:'tCo' };
+const RARITY_CLASS = { C:'rC', U:'rR', R:'rR', E:'rE', L:'rL' };
+const BADGE_CLASS  = { C:'br-C', U:'br-R', R:'br-R', E:'br-E', L:'br-L' };
+
+function renderItems(filter) {
+  const tbody = document.getElementById('item-body');
+  tbody.innerHTML = '';
+  ITEMS.forEach(([id, name, cls, type, rar, stats, src, desc]) => {
+    if (filter !== 'all' && cls !== filter) return;
+    const tr = document.createElement('tr');
+    tr.dataset.class = cls;
+    tr.innerHTML = `
+      <td class="ic">${svgIcon(cls, type, rar)}</td>
+      <td class="mono">${id}</td>
+      <td class="nm2">${name}</td>
+      <td style="font-size:12px">${cls}</td>
+      <td class="${TYPE_CLASS[type]||'tCo'}" style="font-size:11px;font-weight:600">${TYPE_LABEL[type]||type}</td>
+      <td><span class="badge-r ${BADGE_CLASS[rar]}">${RARITY_LABEL[rar]||rar}</span></td>
+      <td style="font-size:11.5px;font-family:var(--mono);color:var(--text2)">${stats}</td>
+      <td style="font-size:11.5px;color:var(--text2)">${src}</td>
+      <td class="desc">${desc}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterItems(cls, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderItems(cls);
+}
+
+// ─── CHARACTER MANAGER ──────────────────────────────────────────────────────
+let charTab = 'equipment';
+let charPlayerState = null;
+let charEditSlot = null;
+
+function switchCharTab(tab) {
+  charTab = tab;
+  ['equipment','inventory','chest'].forEach(function(t) {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = (t === tab) ? '' : 'none';
+    const btn = document.getElementById('chartab-'+t);
+    if (btn) {
+      btn.style.background    = (t === tab) ? 'var(--med-bg)' : 'var(--bg3)';
+      btn.style.color         = (t === tab) ? 'var(--med)'    : 'var(--text2)';
+      btn.style.borderColor   = (t === tab) ? 'var(--med-bd)' : 'var(--border)';
+    }
+  });
+}
+
+async function loadPlayerState() {
+  try {
+    const r = await fetch('http://localhost:8080/api/player/state');
+    charPlayerState = await r.json();
+    renderEquipment();
+    renderInventory();
+    updateCharBadge(true);
+  } catch(e) {
+    updateCharBadge(false);
+  }
+}
+
+function rarityColor(r) {
+  return {Common:'#9d9d9d',Uncommon:'#1eff00',Rare:'#0070dd',Epic:'#a335ee',Legendary:'#ff8000'}[r] || '#9d9d9d';
+}
+
+function durabilityColor(d, max) {
+  const pct = max ? d / max : 1;
+  if (pct > 0.5) return 'var(--low)';
+  if (pct > 0.2) return 'var(--high)';
+  return 'var(--crit)';
+}
+
+function rarityBadge(rarity) {
+  const c = rarityColor(rarity);
+  return '<span style="font-size:10px;padding:1px 6px;border-radius:3px;background:'+c+'22;color:'+c+';border:1px solid '+c+'66;font-weight:700">'+(rarity||'Common')+'</span>';
+}
+
+function renderEquipment() {
+  if (!charPlayerState) return;
+  const eq = charPlayerState.equipped || {};
+  const slots = ['weapon','armor','boots','helmet','gloves','accessory'];
+  const slotLabels = {weapon:'⚔ Оружие',armor:'🛡 Броня',boots:'👢 Обувь',helmet:'🪖 Шлем',gloves:'🧤 Перчатки',accessory:'💍 Аксессуар'};
+  let totalAtk = 0, totalDef = 0, totalHp = 0;
+
+  slots.forEach(function(slot) {
+    const el = document.getElementById('eqslot-'+slot);
+    if (!el) return;
+    const item = eq[slot];
+    if (item && item.itemId) {
+      totalAtk += (item.atk || 0);
+      totalDef += (item.def || 0);
+      totalHp  += (item.hp  || 0);
+      const durPct = item.durMax ? Math.round(item.durability / item.durMax * 100) : 100;
+      const rc = rarityColor(item.rarity);
+      el.innerHTML =
+        '<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem">'+slotLabels[slot]+'</div>'+
+        '<div style="font-weight:600;font-size:13px;color:'+rc+';margin-bottom:.25rem">'+item.name+'</div>'+
+        '<div style="margin-bottom:.3rem">'+rarityBadge(item.rarity)+'</div>'+
+        '<div style="font-size:11px;color:var(--text2);font-family:var(--mono);margin-bottom:.4rem">'+
+          (item.atk?'ATK +'+item.atk+' ':'')+
+          (item.def?'DEF +'+item.def+' ':'')+
+          (item.hp?'HP +'+item.hp:'')+'</div>'+
+        '<div style="margin-bottom:.4rem">'+
+          '<div style="font-size:10px;color:var(--text3);margin-bottom:2px">Прочность '+durPct+'%</div>'+
+          '<div style="height:4px;background:var(--bg);border-radius:2px">'+
+            '<div style="height:100%;width:'+durPct+'%;background:'+durabilityColor(item.durability,item.durMax)+';border-radius:2px;transition:width .3s"></div>'+
+          '</div></div>'+
+        '<button onclick="openEquipEdit(\''+slot+'\')" style="font-size:11px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg3);color:var(--text2);cursor:pointer">✏ Изменить</button>';
+      el.style.borderColor = rc + '55';
+    } else {
+      el.innerHTML =
+        '<div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem">'+slotLabels[slot]+'</div>'+
+        '<div style="color:var(--text3);font-size:12px;margin:.5rem 0">— пусто —</div>'+
+        '<button onclick="openEquipEdit(\''+slot+'\')" style="font-size:11px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:var(--bg3);color:var(--text2);cursor:pointer">+ Надеть</button>';
+      el.style.borderColor = 'var(--border)';
+    }
+  });
+
+  const sEl = document.getElementById('eq-stats');
+  if (sEl) sEl.innerHTML =
+    '<span style="color:var(--crit)">ATK '+totalAtk+'</span> &nbsp;'+
+    '<span style="color:var(--low)">DEF '+totalDef+'</span> &nbsp;'+
+    '<span style="color:var(--med)">HP '+totalHp+'</span>';
+}
+
+function fillStatsFromItem(itemId) {
+  const item = ITEM_DB[itemId];
+  if (!item) return;
+  document.getElementById('edit-atk').value = item.atk || 0;
+  document.getElementById('edit-def').value = item.def || 0;
+  document.getElementById('edit-hp').value  = item.hp  || 0;
+  document.getElementById('edit-mgk').value = item.mgk || 0;
+}
+
+function openEquipEdit(slot) {
+  charEditSlot = slot;
+  const form = document.getElementById('equip-edit-form');
+  if (!form) return;
+  form.style.display = '';
+  document.getElementById('edit-slot-label').textContent = slot;
+  document.getElementById('equip-result').textContent = '';
+
+  const sel = document.getElementById('edit-item-select');
+  if (sel) {
+    sel.innerHTML = '<option value="">— выберите предмет —</option>';
+    Object.entries(ITEM_DB).filter(function(e) { return e[1].slot === slot; }).forEach(function(e) {
+      const id = e[0], d = e[1];
+      const o = document.createElement('option');
+      o.value = id;
+      o.textContent = d.name + ' (' + d.cls + ')';
+      sel.appendChild(o);
+    });
+  }
+
+  // Pre-fill from currently equipped item
+  const equipped = charPlayerState && charPlayerState.equipped && charPlayerState.equipped[slot];
+  if (equipped && equipped.itemId) {
+    if (sel) sel.value = equipped.itemId;
+    const rarSel = document.getElementById('edit-rarity');
+    if (rarSel) rarSel.value = equipped.rarity || 'Common';
+    const durPct = equipped.durMax ? Math.round(equipped.durability / equipped.durMax * 100) : (equipped.durability || 100);
+    const durInput = document.getElementById('edit-durability');
+    const durVal   = document.getElementById('dur-val');
+    if (durInput) durInput.value = durPct;
+    if (durVal)   durVal.textContent = durPct;
+    // Stats from the actually equipped item (may already be manipulated)
+    document.getElementById('edit-atk').value = equipped.atk || 0;
+    document.getElementById('edit-def').value = equipped.def || 0;
+    document.getElementById('edit-hp').value  = equipped.hp  || 0;
+    document.getElementById('edit-mgk').value = equipped.mgk || 0;
+  } else {
+    document.getElementById('edit-atk').value = 0;
+    document.getElementById('edit-def').value = 0;
+    document.getElementById('edit-hp').value  = 0;
+    document.getElementById('edit-mgk').value = 0;
+  }
+  form.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+async function sendEquipVuln() {
+  const form = document.getElementById('equip-edit-form');
+  if (!form || !charEditSlot) return;
+  const itemId = document.getElementById('edit-item-select').value;
+  const item   = ITEM_DB[itemId];
+  if (!itemId || !item) { alert('Выберите предмет'); return; }
+  const dur = parseInt(document.getElementById('edit-durability').value) || 100;
+  const body = {
+    slot: charEditSlot,
+    itemId: itemId,
+    name: item.name,
+    rarity: document.getElementById('edit-rarity').value || 'Common',
+    atk: parseInt(document.getElementById('edit-atk').value) || 0,
+    def: parseInt(document.getElementById('edit-def').value) || 0,
+    hp:  parseInt(document.getElementById('edit-hp').value)  || 0,
+    mgk: parseInt(document.getElementById('edit-mgk').value) || 0,
+    durability: dur, durMax: 100
+  };
+  try {
+    const r = await fetch('http://localhost:8080/api/player/equip', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+    const d = await r.json();
+    const res = document.getElementById('equip-result');
+    res.textContent = JSON.stringify(d, null, 2);
+    res.style.color = 'var(--crit)';
+    await loadPlayerState();
+  } catch(e) {
+    document.getElementById('equip-result').textContent = 'Ошибка: ' + e.message;
+  }
+}
+
+function renderInventory() {
+  if (!charPlayerState) return;
+  const inv = charPlayerState.inventory || [];
+  const el  = document.getElementById('inventory-list');
+  if (!el) return;
+  if (inv.length === 0) { el.innerHTML = '<div style="color:var(--text3);font-size:13px">Инвентарь пуст</div>'; return; }
+  el.innerHTML = inv.map(function(item) {
+    const durPct = item.durMax ? Math.round(item.durability / item.durMax * 100) : 100;
+    const rc = rarityColor(item.rarity);
+    return '<div style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border:1px solid '+rc+'33;border-left:3px solid '+rc+';border-radius:6px;margin-bottom:.4rem;background:var(--bg2)">'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-weight:600;font-size:13px;color:'+rc+'">'+item.name+'</div>'+
+        '<div style="font-size:11px;color:var(--text3)">'+item.itemId+'</div>'+
+      '</div>'+
+      rarityBadge(item.rarity)+
+      '<div style="font-size:12px;font-family:var(--mono);color:var(--text2)">×'+(item.qty||1)+'</div>'+
+      '<div style="width:60px">'+
+        '<div style="font-size:10px;color:var(--text3)">'+durPct+'%</div>'+
+        '<div style="height:3px;background:var(--bg);border-radius:2px"><div style="height:100%;width:'+durPct+'%;background:'+durabilityColor(item.durability,item.durMax)+';border-radius:2px"></div></div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+async function grantItemVuln() {
+  const itemId = document.getElementById('grant-item-id').value;
+  const item   = ITEM_DB[itemId];
+  if (!itemId || !item) { alert('Выберите предмет'); return; }
+  const body = {
+    itemId: itemId,
+    name: item.name,
+    rarity: document.getElementById('grant-rarity').value || 'Common',
+    qty: parseInt(document.getElementById('grant-qty').value) || 1,
+    durability: parseInt(document.getElementById('grant-durability').value) || 100,
+    durMax: 100
+  };
+  try {
+    const r = await fetch('http://localhost:8080/api/player/grant', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+    });
+    const d = await r.json();
+    const res = document.getElementById('grant-result');
+    res.textContent = JSON.stringify(d, null, 2);
+    res.style.color = 'var(--crit)';
+    await loadPlayerState();
+  } catch(e) {
+    document.getElementById('grant-result').textContent = 'Ошибка: ' + e.message;
+  }
+}
+
+async function openChest(mode) {
+  const chestId      = document.getElementById('chest-type').value;
+  const forcedItemId = document.getElementById('chest-forced-item').value;
+  const forcedRarity = document.getElementById('chest-forced-rarity').value;
+  const url  = mode === 'vuln' ? 'http://localhost:8080/api/chest/open' : 'http://localhost:8080/api/chest/open/fixed';
+  const body = mode === 'vuln' ? {chestId:chestId,forcedItemId:forcedItemId,forcedRarity:forcedRarity} : {chestId:chestId};
+  try {
+    const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+    const d = await r.json();
+    const el = document.getElementById('chest-result-'+mode);
+    if (el) el.textContent = JSON.stringify(d, null, 2);
+  } catch(e) {
+    const el = document.getElementById('chest-result-'+mode);
+    if (el) el.textContent = 'Ошибка: сервер не запущен';
+  }
+}
+
+function updateCharBadge(live) {
+  const b = document.getElementById('char-srv-badge');
+  if (!b) return;
+  if (live) {
+    b.textContent = '🟢 Подключено';
+    b.style.color = 'var(--low)';
+    b.style.borderColor = 'var(--low-bd)';
+    b.style.background  = 'var(--low-bg)';
+  } else {
+    b.textContent = '🔴 Нет соединения';
+    b.style.color = 'var(--high)';
+    b.style.borderColor = 'var(--high-bd)';
+    b.style.background  = 'var(--high-bg)';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Populate ITEM_DB dropdowns
+  const itemOpts = Object.entries(ITEM_DB).map(function(e) {
+    return '<option value="'+e[0]+'">'+e[1].name+' ('+e[1].slot+')</option>';
+  }).join('');
+  const chestSel = document.getElementById('chest-forced-item');
+  if (chestSel) chestSel.innerHTML = '<option value="">— нет (случайный) —</option>' + itemOpts;
+  const grantSel = document.getElementById('grant-item-id');
+  if (grantSel) grantSel.innerHTML = '<option value="">— выберите —</option>' + itemOpts;
+
+  loadPlayerState();
+  setInterval(loadPlayerState, 10000);
+  switchCharTab('equipment');
+});
+
+// Init
+renderItems('all');
+</script>
+
+<!-- PIN modal for Real Test mode -->
+<div id="pin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center"
+  onclick="if(event.target===this)hidePinModal()">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:2rem 2rem 1.5rem;width:340px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.5)">
+    <div style="font-size:20px;font-weight:700;margin-bottom:.4rem">🔐 Real Test Mode</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.55">
+      Режим проксирует запросы на реальный <code style="font-size:11px">game.thebackend.io</code>
+      через локальный сервер и автоматически перехватывает Bearer-токен из буфера обмена.<br>
+      Введите PIN для активации:
+    </div>
+    <input id="pin-input" type="password" maxlength="4" placeholder="••••"
+      autocomplete="off"
+      style="width:100%;font-size:32px;text-align:center;padding:.5rem;border:2px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);letter-spacing:.4em;box-sizing:border-box;outline:none;transition:border-color .15s"
+      oninput="checkPin(this.value)"
+      onfocus="this.style.borderColor='var(--med-bd)'"
+      onblur="this.style.borderColor='var(--border)'"
+      onkeydown="if(event.key==='Escape')hidePinModal()">
+    <div id="pin-error" style="display:none;color:var(--crit);font-size:12px;margin-top:.5rem;text-align:center;font-weight:600">
+      ✕ Неверный PIN-код
+    </div>
+    <button onclick="hidePinModal()"
+      style="margin-top:1.1rem;width:100%;padding:.5rem;border:1px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text2);cursor:pointer;font-size:13px">
+      Отмена
+    </button>
+  </div>
+</div>
+</body>
+</html>
